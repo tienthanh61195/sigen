@@ -1,0 +1,55 @@
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import ssvLogo from '$lib/images/ssv-logo.png';
+	import '../app.css';
+	const menuNavigations = [{ label: 'Phân Loại Tài Chính', route: 'financial-report' }];
+	const onNavigationClick = (route: string) => {
+		goto(route);
+	};
+</script>
+
+<div class="main">
+	<div class="main__header">
+		<div class="flex text-2xl p-3 flex-row h-full items-center border-r border-r-white">
+			<img src={ssvLogo} />
+			<div class="ml-2">Survival Skills Vietnam</div>
+		</div>
+		<div class="flex text-xl flex-1 self-stretch">
+			{#each menuNavigations as menuNavigation (menuNavigation.label)}
+				<div
+					on:click={() => {
+						onNavigationClick(menuNavigation.route);
+					}}
+					class="cursor-pointer hover:opacity-80 items-center flex p-2"
+				>
+					{menuNavigation.label}
+				</div>
+			{/each}
+		</div>
+	</div>
+	<div class="main__body">
+		<slot />
+	</div>
+	<div class="main__footer">&#169; 2018 Survival Skill Vietnam</div>
+</div>
+
+<style lang="scss">
+	.main {
+		@apply w-screen h-screen overflow-hidden flex flex-col;
+		& .main__header {
+			@apply h-20 flex overflow-hidden items-center bg-gradient-to-r from-blue-600 to-blue-500 text-white;
+			& img {
+				height: 100%;
+				width: auto;
+			}
+		}
+		& .main__body {
+			@apply flex-1 overflow-hidden;
+		}
+
+		& .main__footer {
+			@apply flex items-center justify-center p-2 text-gray-500 border-t border-t-gray-300;
+		}
+	}
+</style>

@@ -1,0 +1,16 @@
+enum InputTypes {
+	'TEXT' = 'TEXT',
+	'NUMBER' = 'NUMBER',
+	'EMAIL' = 'EMAIL',
+	'PASSWORD' = 'PASSWORD',
+	'RANGE' = 'RANGE',
+	'DATE_TIME_PICKER' = 'DATE_TIME_PICKER',
+	'SELECT' = 'SELECT',
+	'CHECKBOX' = 'CHECKBOX',
+	'RADIO' = 'RADIO',
+	'TEXTAREA' = 'TEXTAREA',
+	'DATE_TIME_RANGE_PICKER' = 'DATE_TIME_RANGE_PICKER'
+
+}
+
+export default InputTypes;

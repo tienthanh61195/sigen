@@ -1,0 +1,34 @@
+{
+	"en": {
+		"bankSchema": {
+			"id": "Item #",
+			"transactionDateTime": "Transaction Date Time",
+			"credit": "Credit",
+			"debit": "Debit",
+			"transactionContent": "Transaction Content",
+			"mainCategory": "Category",
+			"subCategory": "Sub-category",
+			"tag": "Tag",
+			"forProfit": "For profit",
+			"nonProfit": "Non profit",
+			"revenue": "Revenue",
+			"individualFirstAidClass": "Individual first aid class",
+			"corporateFirstAidClass": "Corporate first aid class",
+			"firstAidKit": "First aid kit",
+			"eLearning": "E learning",
+			"others": "Others",
+			"projectName1": "Project name 1",
+			"projectName2": "Project name 2",
+			"debitForProfitDirectCost": "COGS/Direct Cost",
+			"debitForProfitIndirectCost": "Fixed Cost/Indirect Cost",
+			"salaryBenefit": "Salary & Staff Benefit",
+			"office": "Office",
+			"marketing": "Marketing",
+			"transport": "Transport",
+			"debitNonProfitDirectCost": "Direct Cost",
+			"debitNonProfitIndirectCost": "Indirect Cost",
+			"administration": "Administration",
+			"communication": "Communication"
+		}
+	}
+}
