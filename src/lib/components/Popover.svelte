@@ -21,6 +21,7 @@
 	export let position: PopoverActivePositionType = 'right';
 	export let backdropVisible = true;
 	export let destroyOnClose = false;
+	export let popoverArrowVisible = true;
 	let coordX: number;
 	let coordY: number;
 	let contentRef: HTMLElement;
@@ -181,19 +182,6 @@
 </div>
 {#if $$slots.popoverContent && (!destroyOnClose || (destroyOnClose && visibleState))}
 	<Backdrop {destroyOnClose} {backdropVisible} visible={visibleState && !!coordX && !!coordY}>
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- <div
-			class="w-auto h-auto border-inherit bg-inherit z-10 absolute bg-white {contentClassName} {visibleState
-				? contentClassNameOnPopoverVisible
-				: ''}"
-			style="top:{contentCoord.top}px;left:{contentCoord.left}px;width:{contentCoord.width}px;height:{contentCoord.height}px"
-			on:mouseenter={onHoverInContent}
-			on:mousemove={onMouseMoveInsideContent}
-			on:mouseleave={onHoverOutContent}
-			on:click={onClickContent}
-		>
-			<slot />
-		</div> -->
 		<div
 			use:clickOutsideElement
 			on:outclick={onClickOutsideContent}
@@ -201,6 +189,7 @@
 				(shouldReversePopoverHorizontally && position === 'left')}
 			class:arrow-right={(!shouldReversePopoverHorizontally && position === 'left') ||
 				(shouldReversePopoverHorizontally && position === 'right')}
+			class:no-arrow={!popoverArrowVisible}
 			class="popover-content {shouldReversePopoverHorizontally
 				? '-translate-x-full'
 				: ''} {shouldReversePopoverVertically ? '-translate-y-full' : ''}"
@@ -216,7 +205,7 @@
 	.popover-content {
 		@apply absolute;
 		box-shadow: 0 4px 5px -5px lightgrey;
-		& > :global(:first-child)::before {
+		&:not(.no-arrow) > :global(:first-child)::before {
 			position: absolute;
 			transition: none;
 			width: 10px;
@@ -231,7 +220,7 @@
 			border-style: solid;
 			border-color: inherit;
 		}
-		& > :global(:first-child)::after {
+		&:not(.no-arrow) > :global(:first-child)::after {
 			position: absolute;
 			transition: none;
 			width: 1px;
@@ -241,7 +230,7 @@
 			content: '';
 			z-index: 3;
 		}
-		&.arrow-right > :global(:first-child) {
+		&.arrow-right:not(.no-arrow) > :global(:first-child) {
 			&::before {
 				top: var(--arrowTop);
 				left: 100%;
@@ -255,7 +244,7 @@
 				transform: translateY(-50%);
 			}
 		}
-		&.arrow-left > :global(:first-child) {
+		&.arrow-left:not(.no-arrow) > :global(:first-child) {
 			&::before {
 				top: var(--arrowTop);
 				left: 0;

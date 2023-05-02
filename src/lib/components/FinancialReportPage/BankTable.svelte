@@ -27,7 +27,9 @@
 					class="text-center">{record[header]}</td
 				>
 			{/each}
-			<td><BankTableExtraPropertySelector bankRecord={record} /></td>
+			<td class="w-auto items-center">
+				<BankTableExtraPropertySelector bankRecord={record} />
+			</td>
 		</tr>
 	{/each}
 </table>
@@ -37,7 +39,7 @@
 		@apply border-collapse overflow-auto;
 		& th,
 		td {
-			@apply border border-black p-3 w-60 h-20;
+			@apply border border-black p-3 h-20;
 		}
 	}
 </style>

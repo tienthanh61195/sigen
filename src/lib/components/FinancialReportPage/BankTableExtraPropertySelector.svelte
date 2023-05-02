@@ -184,7 +184,9 @@
 		if (credit > 0) {
 			if (
 				credit < 700000 &&
-				['1life', 'TSC'].some((k) => transactionContent.toLowerCase().includes(k.toLowerCase()))
+				['1life', 'TSC'].some((k) =>
+					(transactionContent || '').toLowerCase().includes(k.toLowerCase())
+				)
 			) {
 				selectedValue1 = 'forProfitCredit';
 				selectedValue2 = 'revenueProfit';
@@ -244,7 +246,7 @@
 	}
 </script>
 
-<div class="flex gap-2">
+<div class="flex items-center justify-center gap-2">
 	<Input
 		inputContainerClasName="w-32"
 		label="1st Category"

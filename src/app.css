@@ -61,6 +61,7 @@ body.input-autofill-handle .input-container.has-label-top-override .input-substi
 /* width */
 ::-webkit-scrollbar {
 	width: 7px;
+	height: 7px;
 }
 
 /* Track */

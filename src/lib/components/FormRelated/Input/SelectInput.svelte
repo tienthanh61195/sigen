@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Backdrop from '$lib/components/Backdrop.svelte';
 	import Icon from '$lib/components/Icon.svelte';
+	import Popover from '$lib/components/Popover.svelte';
 	import type { GeneralFunction } from '$lib/types/common';
 	import type { ElementClickEventHandler, InputChangeEventHandler } from '$lib/types/events';
 	import type {
@@ -97,6 +98,7 @@
 		if (!multiple) {
 			optionVisible = false;
 		}
+		optionVisible = false;
 	};
 
 	const onSelectInputClick: ElementClickEventHandler<MouseEvent> = (e) => {
@@ -157,103 +159,107 @@
 
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="w-full flex" bind:this={selectContainerRef}>
-	<input {...inputProps} on:click={onSelectInputClick} on:input={onSelectInputChange} />
-	{#if disableSearch}
-		<div
-			data-input-focusable
-			on:focus
-			on:focusout
-			bind:this={selectRef}
-			tabindex="0"
-			on:click={onSelectInputClick}
-			class={divClassname}
-		>
-			<div class="w-full absolute top-0 left-0 h-full placeholder-substitution">
-				{selectedOption?.label ? '' : label}
-			</div>
-			<span class:invisible={!selectedOption?.label} class="transition-none">
-				{selectedOption?.label || label || ''}
-			</span>
-		</div>
-	{:else}
-		<div class="flex flex-wrap gap-1 {divClassname}" on:click={onSelectInputClick}>
-			{#if multiple}
-				{#each selectedOption as option (option.value)}
-					<div
-						class="cursor-default rounded-default bg-gray-300 pl-2 flex items-center hover:bg-gray-200"
-					>
-						<span>{option.label}</span>
-						{#if multiple}
-							<Icon
-								on:click={(e) => {
-									e.stopPropagation();
-									const newValues = value.filter((v) => v !== option.value);
-									onChange?.(newValues);
-								}}
-								name="close"
-								class="px-1 text-xs inline"
-							/>
-						{/if}
-					</div>
-				{/each}
-			{/if}
-
-			<input
-				on:focusout
-				on:focus
-				on:blur
-				bind:this={inputMultipleRef}
-				data-input-focusable
-				placeholder={label}
-				class="{className} flex-1 !p-0"
-				value={searchValue}
-				on:input={onSearchInput}
-			/>
-		</div>
-	{/if}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<Icon
-		class={`transition-all duration-100 ${optionVisible ? 'rotate-180' : ''}`}
-		on:click={onSelectInputClick}
-		name="keyboard_arrow_down"
-	/>
-</div>
-<Backdrop backdropVisible={false} visible={optionVisible}>
-	<div
-		class={`input-options-container ${dropdownClasses}`}
-		style="top: {coord.top + coord.height + 5}px;left: {coord.left}px; width: {coord.width}px"
-		use:clickOutsideElement
-		on:outclick={hideOptions}
-	>
-		{#if !filteredOptions.length}
-			<div class="p-2 flex justify-center items-center">Empty</div>
-		{/if}
-		{#each filteredOptions as option (option.value)}
-			<!-- svelte-ignore a11y-click-events-have-key-events -->
+<Popover
+	popoverArrowVisible={false}
+	backdropVisible={false}
+	visible={optionVisible}
+	destroyOnClose={true}
+	behaviour="click"
+	position="bottom"
+>
+	<div class="w-full flex" bind:this={selectContainerRef}>
+		<input {...inputProps} on:click={onSelectInputClick} on:input={onSelectInputChange} />
+		{#if disableSearch}
 			<div
-				class:bg-gray-200={value?.includes(option.value)}
-				class="p-2 cursor-pointer hover:bg-gray-100 flex items-center"
-				on:click={() => {
-					onSelectOptionClick(option);
-				}}
+				data-input-focusable
+				on:focus
+				on:focusout
+				bind:this={selectRef}
+				tabindex="0"
+				on:click={onSelectInputClick}
+				class={divClassname}
 			>
-				{#if optionComponent}
-					<svelte:component
-						this={optionComponent.component}
-						{option}
-						{...optionComponent.props || {}}
-					/>
-				{:else}
-					<span>{option.label}</span>
-				{/if}
-				{#if value?.includes(option.value)}
-					<Icon name="check" class="text-base ml-auto text-main-blue" />
-				{/if}
+				<div class="w-full absolute top-0 left-0 h-full placeholder-substitution">
+					{selectedOption?.label ? '' : label}
+				</div>
+				<span class:invisible={!selectedOption?.label} class="transition-none">
+					{selectedOption?.label || label || ''}
+				</span>
 			</div>
-		{/each}
+		{:else}
+			<div class="flex flex-wrap gap-1 {divClassname}" on:click={onSelectInputClick}>
+				{#if multiple}
+					{#each selectedOption as option (option.value)}
+						<div
+							class="cursor-default rounded-default bg-gray-300 pl-2 flex items-center hover:bg-gray-300"
+						>
+							<span>{option.label}</span>
+							{#if multiple}
+								<Icon
+									on:click={(e) => {
+										e.stopPropagation();
+										const newValues = value.filter((v) => v !== option.value);
+										onChange?.(newValues);
+									}}
+									name="close"
+									class="px-1 text-xs inline"
+								/>
+							{/if}
+						</div>
+					{/each}
+				{/if}
+
+				<input
+					on:focusout
+					on:focus
+					on:blur
+					bind:this={inputMultipleRef}
+					data-input-focusable
+					placeholder={label}
+					class="{className} flex-1 !p-0"
+					value={searchValue}
+					on:input={onSearchInput}
+				/>
+			</div>
+		{/if}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- <Icon
+			class={`transition-all duration-100 ${optionVisible ? 'rotate-180' : ''}`}
+			on:click={onSelectInputClick}
+			name="keyboard_arrow_down"
+		/> -->
 	</div>
-</Backdrop>
+	<svelte:fragment slot="popoverContent">
+		<div class="input-options-container">
+			{#if !filteredOptions.length}
+				<div class="p-2 flex justify-center items-center">Empty</div>
+			{/if}
+			{#each filteredOptions as option (option.value)}
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<div
+					class:bg-gray-200={value?.includes(option.value)}
+					class="p-2 cursor-pointer hover:bg-gray-100 flex items-center"
+					on:click={() => {
+						onSelectOptionClick(option);
+					}}
+				>
+					{#if optionComponent}
+						<svelte:component
+							this={optionComponent.component}
+							{option}
+							{...optionComponent.props || {}}
+						/>
+					{:else}
+						<span>{option.label}</span>
+					{/if}
+					{#if value?.includes(option.value)}
+						<Icon name="check" class="text-base ml-auto text-main-blue" />
+					{/if}
+				</div>
+			{/each}
+		</div>
+	</svelte:fragment>
+</Popover>
 
 <style lang="scss">
 	.input-substitution {
@@ -262,9 +268,8 @@
 		}
 	}
 	.input-options-container {
-		@apply border border-placeholder bg-white z-50 rounded-sm;
-		@apply absolute origin-top-left;
-		@apply flex flex-col items-stretch h-auto w-full overflow-auto max-h-[50%] z-10;
+		@apply bg-white z-50 rounded-sm w-40 border border-gray-300;
 		@apply transition-all duration-100;
+		box-shadow: 0 4px 5px -5px lightgrey;
 	}
 </style>
