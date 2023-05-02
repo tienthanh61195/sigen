@@ -36,15 +36,12 @@
 	let selectedOption: any;
 	$: {
 		if (!multiple) {
-			console.log('se', options, value);
 			selectedOption = value ? options?.find((o) => o.value === value) : '';
 		} else {
 			selectedOption = value ? options?.filter((o) => flatten([value]).includes(o.value)) : [];
 		}
 	}
 
-	$: {
-	}
 	let optionVisible = false;
 	let coord: any = {};
 
@@ -98,7 +95,6 @@
 		if (!multiple) {
 			optionVisible = false;
 		}
-		optionVisible = false;
 	};
 
 	const onSelectInputClick: ElementClickEventHandler<MouseEvent> = (e) => {
@@ -166,6 +162,7 @@
 	destroyOnClose={true}
 	behaviour="click"
 	position="bottom"
+	onClosePopover={changeOptionVisible}
 >
 	<div class="w-full flex" bind:this={selectContainerRef}>
 		<input {...inputProps} on:click={onSelectInputClick} on:input={onSelectInputChange} />

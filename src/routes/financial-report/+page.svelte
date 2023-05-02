@@ -11,8 +11,6 @@
 		const results = await Promise.all(
 			Object.values(files).map(async (file: any) => standardizeBankData(file))
 		);
-		console.log(results);
-
 		banksData = results;
 	};
 </script>

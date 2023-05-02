@@ -241,9 +241,6 @@
 		// }
 	}
 
-	$: {
-		console.log(selectedValue3);
-	}
 </script>
 
 <div class="flex items-center justify-center gap-2">
