@@ -18,6 +18,7 @@
 	import LABEL_POSITIONS from '$lib/constants/labelPositions';
 	import type { InputComponentChangeHandler, InputOption } from '$lib/types/input-component';
 	import TextArea from './TextArea.svelte';
+	import type { GeneralFunction } from '$lib/types/common';
 
 	export let value: any = undefined;
 	export let inputClassName: string | undefined = '';
@@ -34,6 +35,7 @@
 	export let dateTimePickerType: 'full' | 'date' | 'time' = 'full';
 	export let minDateTime: string | undefined = undefined;
 	export let maxDateTime: string | undefined = undefined;
+	export let onAddNewOption: GeneralFunction | undefined = undefined;
 	// ------------ USE ZOD FOR VALIDATION ----------------
 	export let validation: ZodTypeAny | undefined = undefined;
 	export let optionComponent:
@@ -129,6 +131,7 @@
 		on:focusout={onFocusOut}
 		on:focus
 		on:blur
+		{onAddNewOption}
 		{options}
 		{name}
 		{names}

@@ -1,20 +1,19 @@
-import { browser } from "$app/environment";
+import { browser } from '$app/environment';
 
 export default function clickOutsideElement(node: HTMLElement, txt?: string) {
 	if (!browser) return;
 	const handleClick = (event: MouseEvent) => {
-		
-		const target = event.target as Element
-		if (target && !node.contains(target) && target.closest('.custom-overlay') === node.closest('.custom-overlay')) {
-			node.dispatchEvent(new CustomEvent("outclick"));
+		const target = event.target as Element;
+		if (target && !node.contains(target)) {
+			node.dispatchEvent(new CustomEvent('outclick', { detail: { test: event } }));
 		}
 	};
 
-	document.addEventListener("click", handleClick, true);
+	document.addEventListener('click', handleClick, true);
 
 	return {
 		destroy() {
-			document.removeEventListener("click", handleClick, true);
+			document.removeEventListener('click', handleClick, true);
 		}
 	};
 }

@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import type { ICommonBankExtraSchema } from '$lib/constants/banks';
 	import InputTypes from '$lib/constants/inputTypes';
 	import { messagesStore } from '$lib/stores';
@@ -277,4 +277,4 @@
 </div>
 
 <style lang="scss">
-</style>
+</style> -->

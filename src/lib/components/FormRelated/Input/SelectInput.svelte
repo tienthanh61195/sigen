@@ -13,10 +13,10 @@
 	import setBodyClickHandler from '$lib/utils/setBodyClickHandler';
 	import clickOutsideElement from '$lib/utils/svelte-actions/clickOutsideElement';
 	import { flatten, isEqual } from 'lodash';
-	import { onDestroy, onMount, SvelteComponent } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount, SvelteComponent } from 'svelte';
 	import { afterUpdate } from 'svelte/internal';
 
-	type $$Props = InputPropsForInputComponents;
+	// type $$Props = InputPropsForInputComponents;
 
 	export let value: any | undefined = undefined;
 	export let label: string | undefined = '';
@@ -27,6 +27,8 @@
 	export let options: InputOption[] = [];
 	export let disableSearch = true;
 	export let multiple = false;
+	export let allowAddMore = true;
+	export let onAddNewOption: GeneralFunction | undefined;
 	export let optionComponent:
 		| { component: typeof SvelteComponent; props?: Record<string, any> }
 		| undefined = undefined;
@@ -42,10 +44,13 @@
 		}
 	}
 
+	$: {
+	}
+
 	let optionVisible = false;
 	let coord: any = {};
 
-	const changeOptionVisible = () => {
+	$: changeOptionVisible = () => {
 		optionVisible = !optionVisible;
 	};
 
@@ -99,6 +104,7 @@
 
 	const onSelectInputClick: ElementClickEventHandler<MouseEvent> = (e) => {
 		// e.stopPropagation();
+		// console.log(selectRef);
 		changeOptionVisible();
 		if (selectRef) selectRef.focus();
 		if (inputMultipleRef) inputMultipleRef.focus();
@@ -151,38 +157,67 @@
 	onDestroy(() => {
 		document.removeEventListener('keydown', onKeyEscPressHandler);
 	});
+	const dispatch = createEventDispatcher();
+	const onInputFocus = (e: any) => {
+		dispatch('focus', e);
+		onSelectInputClick(e);
+	};
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <Popover
 	popoverArrowVisible={false}
-	backdropVisible={false}
 	visible={optionVisible}
+	backdropVisible={false}
 	destroyOnClose={true}
 	behaviour="click"
 	position="bottom"
-	onClosePopover={changeOptionVisible}
 >
 	<div class="w-full flex" bind:this={selectContainerRef}>
 		<input {...inputProps} on:click={onSelectInputClick} on:input={onSelectInputChange} />
 		{#if disableSearch}
-			<div
-				data-input-focusable
-				on:focus
-				on:focusout
-				bind:this={selectRef}
-				tabindex="0"
-				on:click={onSelectInputClick}
-				class={divClassname}
-			>
-				<div class="w-full absolute top-0 left-0 h-full placeholder-substitution">
-					{selectedOption?.label ? '' : label}
+			{#if allowAddMore}
+				<div class={divClassname}>
+					<input
+						on:focus={onInputFocus}
+						on:keypress={(e) => {
+							const v = e.target.value;
+							if (e.key === 'Enter') {
+								const newOption = { label: v, value: v };
+								// options = options.concat(newOption);
+								// onSelectOptionClick(newOption);
+								onAddNewOption?.(newOption);
+							}
+						}}
+						on:focusout={(e) => {
+							dispatch('focusout', e);
+						}}
+						bind:this={selectRef}
+						value={selectedOption?.label || ''}
+					/>
 				</div>
-				<span class:invisible={!selectedOption?.label} class="transition-none">
-					{selectedOption?.label || label || ''}
-				</span>
-			</div>
+			{:else}
+				<div
+					data-input-focusable
+					on:focus
+					on:focusout
+					bind:this={selectRef}
+					on:click={onSelectInputClick}
+					class={divClassname}
+				>
+					<div class="w-full absolute top-0 left-0 h-full placeholder-substitution">
+						{selectedOption?.label ? '' : label}
+					</div>
+					<span
+						class:invisible={!selectedOption?.label}
+						class="transition-none"
+						class:line-clamp-1={!selectedOption?.label}
+					>
+						{selectedOption?.label || label || ''}
+					</span>
+				</div>
+			{/if}
 		{:else}
 			<div class="flex flex-wrap gap-1 {divClassname}" on:click={onSelectInputClick}>
 				{#if multiple}
@@ -191,21 +226,18 @@
 							class="cursor-default rounded-default bg-gray-300 pl-2 flex items-center hover:bg-gray-300"
 						>
 							<span>{option.label}</span>
-							{#if multiple}
-								<Icon
-									on:click={(e) => {
-										e.stopPropagation();
-										const newValues = value.filter((v) => v !== option.value);
-										onChange?.(newValues);
-									}}
-									name="close"
-									class="px-1 text-xs inline"
-								/>
-							{/if}
+							<Icon
+								on:click={(e) => {
+									e.stopPropagation();
+									const newValues = value.filter((v) => v !== option.value);
+									onChange?.(newValues);
+								}}
+								name="close"
+								class="px-1 text-xs inline"
+							/>
 						</div>
 					{/each}
 				{/if}
-
 				<input
 					on:focusout
 					on:focus
@@ -227,33 +259,40 @@
 		/> -->
 	</div>
 	<svelte:fragment slot="popoverContent">
-		<div class="input-options-container">
-			{#if !filteredOptions.length}
+		<div
+			class="input-options-container"
+			use:clickOutsideElement
+			on:outclick={(e) => {
+				if (!selectContainerRef?.contains(e.detail.test.target)) changeOptionVisible();
+			}}
+		>
+			{#if !filteredOptions?.length}
 				<div class="p-2 flex justify-center items-center">Empty</div>
+			{:else}
+				{#each filteredOptions as option (option.value)}
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<div
+						class:bg-gray-200={flatten([value])?.includes(option.value)}
+						class="p-2 cursor-pointer hover:bg-gray-100 flex items-center dumamay"
+						on:click={() => {
+							onSelectOptionClick(option);
+						}}
+					>
+						{#if optionComponent}
+							<svelte:component
+								this={optionComponent.component}
+								{option}
+								{...optionComponent.props || {}}
+							/>
+						{:else}
+							<span>{option.label}</span>
+						{/if}
+						{#if flatten([value])?.includes(option.value)}
+							<Icon name="check" class="text-base ml-2 text-main-blue" />
+						{/if}
+					</div>
+				{/each}
 			{/if}
-			{#each filteredOptions as option (option.value)}
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<div
-					class:bg-gray-200={value?.includes(option.value)}
-					class="p-2 cursor-pointer hover:bg-gray-100 flex items-center"
-					on:click={() => {
-						onSelectOptionClick(option);
-					}}
-				>
-					{#if optionComponent}
-						<svelte:component
-							this={optionComponent.component}
-							{option}
-							{...optionComponent.props || {}}
-						/>
-					{:else}
-						<span>{option.label}</span>
-					{/if}
-					{#if value?.includes(option.value)}
-						<Icon name="check" class="text-base ml-auto text-main-blue" />
-					{/if}
-				</div>
-			{/each}
 		</div>
 	</svelte:fragment>
 </Popover>
@@ -265,8 +304,8 @@
 		}
 	}
 	.input-options-container {
-		@apply bg-white z-50 rounded-sm w-40 border border-gray-300;
-		@apply transition-all duration-100;
+		@apply bg-white z-50 rounded-sm min-w-[150px] border border-gray-300;
+		// @apply transition-all duration-100;
 		box-shadow: 0 4px 5px -5px lightgrey;
 	}
 </style>

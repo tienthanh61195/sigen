@@ -11,15 +11,18 @@
 	export let contentClassNameOnPopoverVisible = '';
 	export let contentClassName = '';
 	export let onClosePopover: GeneralFunction | undefined = undefined;
-	$: visibleState = visible;
+	export let onShowPopover: GeneralFunction | undefined = undefined;
 
+	$: {
+		// console.log('VIISBLE PROPS', visible, visible);
+	}
 	interface $$Slots {
 		popoverContent: any;
 		default: any;
 	}
 	export let behaviour: PopoverActiveBehaviourType = 'click';
 	export let position: PopoverActivePositionType = 'right';
-	export let backdropVisible = true;
+	export let backdropVisible = false;
 	export let destroyOnClose = false;
 	export let popoverArrowVisible = true;
 	let coordX: number;
@@ -41,9 +44,7 @@
 		// } else {
 		// }
 	}
-	$: onPreClosePopover = () => {
-		onClosePopover?.();
-	};
+
 	$: {
 		if (position.includes('right')) {
 			shouldReversePopoverHorizontally =
@@ -57,17 +58,27 @@
 	$: translateX =
 		shouldReversePopoverHorizontally && position === 'adaptive' ? 'calc(-100% - 15px)' : '0';
 
-	$: switchVisibleStateFactory = (newVisibleState: boolean) => {
-		return () => {
-			const newContentCoord = getElementCoordsAndSizes(contentRef);
-			// if (!isEqual(newContentCoord, contentCoord)) contentCoord = newContentCoord;
-			if (!newVisibleState) onPreClosePopover();
-			if (!newVisibleState || newVisibleState) visibleState = newVisibleState;
-		};
+	// $: switchVisibleStateFactory = (newVisibleState: boolean) => {
+	// 	return () => {
+	// 		const newContentCoord = getElementCoordsAndSizes(contentRef);
+	// 		// if (!isEqual(newContentCoord, contentCoord)) contentCoord = newContentCoord;
+	// 		if (!newVisibleState) onClosePopover?.();
+	// 		visibleState = newVisibleState;
+	// 	};
+	// };
+
+	$: closePopover = () => {
+		onClosePopover?.();
+		// visible = false;
 	};
 
-	$: onHoverInContent = behaviour === 'hover' ? switchVisibleStateFactory(true) : undefined;
-	$: onHoverOutContent = behaviour === 'hover' ? switchVisibleStateFactory(false) : undefined;
+	$: showPopover = () => {
+		onShowPopover?.();
+		// visible = true;
+	};
+
+	$: onHoverInContent = behaviour === 'hover' ? showPopover : undefined;
+	$: onHoverOutContent = behaviour === 'hover' ? closePopover : undefined;
 	$: onMouseMoveInsideContent =
 		position === 'adaptive'
 			? (e: MouseEvent) => {
@@ -75,11 +86,11 @@
 					coordY = e.clientY - 20;
 			  }
 			: undefined;
-	$: onClickContent = behaviour === 'click' ? switchVisibleStateFactory(true) : undefined;
-	$: onClickOutsideContent = behaviour === 'click' ? switchVisibleStateFactory(false) : undefined;
+	$: onClickContent = behaviour === 'click' ? showPopover : undefined;
+	$: onClickOutsideContent = behaviour === 'click' ? closePopover : undefined;
 
 	$: {
-		if (visibleState) {
+		if (visible) {
 			const tempContentCoord = getElementCoordsAndSizes(contentRef);
 			const tempPopoverCoord = getElementCoordsAndSizes(popoverRef);
 
@@ -148,8 +159,9 @@
 	}
 
 	$: onKeyEscPressHandler = (e: KeyboardEvent) => {
-		if (e.key === 'Escape' && visibleState) {
-			visibleState = false;
+		if (e.key === 'Escape' && visible) {
+			// visible = false;
+			onClosePopover?.();
 		}
 	};
 
@@ -170,7 +182,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
 	bind:this={contentRef}
-	class="w-full h-full border-inherit bg-inherit {contentClassName} {visibleState
+	class="w-full h-full border-inherit bg-inherit {contentClassName} {visible
 		? contentClassNameOnPopoverVisible
 		: ''}"
 	on:mouseenter={onHoverInContent}
@@ -180,11 +192,13 @@
 >
 	<slot />
 </div>
-{#if $$slots.popoverContent && (!destroyOnClose || (destroyOnClose && visibleState))}
-	<Backdrop {destroyOnClose} {backdropVisible} visible={visibleState && !!coordX && !!coordY}>
+{#if $$slots.popoverContent && (!destroyOnClose || (destroyOnClose && visible))}
+	<Backdrop {destroyOnClose} {backdropVisible} visible={visible && !!coordX && !!coordY}>
 		<div
 			use:clickOutsideElement
-			on:outclick={onClickOutsideContent}
+			on:outclick={() => {
+				if (visible) onClickOutsideContent?.();
+			}}
 			class:arrow-left={(!shouldReversePopoverHorizontally && position === 'right') ||
 				(shouldReversePopoverHorizontally && position === 'left')}
 			class:arrow-right={(!shouldReversePopoverHorizontally && position === 'left') ||

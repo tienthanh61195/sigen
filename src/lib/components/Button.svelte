@@ -21,7 +21,7 @@
 				classNameByButtonTypes = 'bg-btn-primary text-white';
 				break;
 			case ButtonTypes.SECONDARY:
-				classNameByButtonTypes = 'bg-btn-primary text-white';
+				classNameByButtonTypes = 'bg-general-active text-white';
 				break;
 			case ButtonTypes.CANCEL:
 				classNameByButtonTypes = 'bg-btn-cancel text-white';

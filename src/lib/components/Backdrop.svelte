@@ -83,8 +83,8 @@
 		class:opacity-0={!stateVisible}
 		bind:this={ref}
 		class:pointer-events-none={!stateVisible}
-		class="custom-overlay duration-{duration} w-screen h-screen {backdropVisible && stateVisible
-			? 'bg-black bg-opacity-60 z-10'
+		class="custom-overlay duration-{duration}  {backdropVisible && stateVisible
+			? 'bg-black bg-opacity-60 z-10 w-screen h-screen'
 			: ''}"
 	>
 		{#if (destroyOnClose && stateVisible) || !destroyOnClose}
