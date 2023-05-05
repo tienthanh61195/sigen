@@ -30,7 +30,7 @@
 		t: 's',
 		s: {
 			alignment: { vertical: 'center', horizontal: alignment },
-			font: { bold: true, color: { rgb: '1d3993' }, sz: '13' }
+			font: { bold: true, color: { rgb: '1d3993' }, sz: '14' }
 			// fill: { bgColor: { rgb: 'FF0000' } }
 		}
 	});
@@ -39,7 +39,7 @@
 		t: 's',
 		s: {
 			alignment: { vertical: 'center', horizontal: alignment },
-			font: { bold: true, color: { rgb: 'ff9300' }, sz: '12' }
+			font: { bold: true, color: { rgb: 'ff9300' }, sz: '14' }
 		}
 	});
 
