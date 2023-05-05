@@ -2,8 +2,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import ssvLogo from '$lib/images/ssv-logo.png';
+	import { base } from '$app/paths';
 	import '../app.css';
-	const menuNavigations = [{ label: 'Phân Loại Tài Chính', route: 'financial-report' }];
+	const menuNavigations = [{ label: 'Phân Loại Tài Chính', route: `${base}/financial-report` }];
 	const onNavigationClick = (route: string) => {
 		goto(route);
 	};
