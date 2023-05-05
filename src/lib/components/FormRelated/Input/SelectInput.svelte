@@ -261,6 +261,9 @@
 	<svelte:fragment slot="popoverContent">
 		<div
 			class="input-options-container"
+			style="min-width:{selectContainerRef
+				? getElementCoordsAndSizes(selectContainerRef).width
+				: '150'}px"
 			use:clickOutsideElement
 			on:outclick={(e) => {
 				if (!selectContainerRef?.contains(e.detail.test.target)) changeOptionVisible();
@@ -304,7 +307,7 @@
 		}
 	}
 	.input-options-container {
-		@apply bg-white z-50 rounded-sm min-w-[150px] border border-gray-300;
+		@apply bg-white z-50 rounded-sm border border-gray-300;
 		// @apply transition-all duration-100;
 		box-shadow: 0 4px 5px -5px lightgrey;
 	}
