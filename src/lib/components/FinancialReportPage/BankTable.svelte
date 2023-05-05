@@ -44,8 +44,13 @@
 	});
 
 	$: onAddExtraColumnClick = () => {
-		if (extraProperties?.length) extraProperties = [];
-		else extraProperties = extraProperties.concat(`extra-property`);
+		if (extraProperties?.length) {
+			standardizedRecords = standardizedRecords.map((r) => {
+				extraProperties.forEach((prop) => delete r[prop]);
+				return r;
+			});
+			extraProperties = [];
+		} else extraProperties = extraProperties.concat(`extra-property`);
 	};
 	$: onExportClick = () => {
 		// table headers
