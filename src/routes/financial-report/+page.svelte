@@ -3,7 +3,6 @@
 	import { isString } from 'lodash';
 	import standardizeBankData from '$lib/utils/standardizeBankData';
 	import BankTable from '$lib/components/FinancialReportPage/BankTable.svelte';
-	import Notification from '$lib/components/Notification.svelte';
 
 	let banksData: any[] = [];
 	let error = '';
