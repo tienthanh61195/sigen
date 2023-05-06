@@ -8,16 +8,22 @@
 	export let property: string;
 	export let properties: string[];
 	export let recordIndex = 0;
+	const optionsCreditFromLocalStorage = JSON.parse(localStorage.getItem('credit') || '[]');
+	const optionsDebitFromLocalStorage = JSON.parse(localStorage.getItem('debit') || '[]');
 	let optionsCredit = [
-		...JSON.parse(localStorage.getItem('credit') || '[]'),
-		...defaultBankOptions.credit
+		...optionsCreditFromLocalStorage,
+		...defaultBankOptions.credit.filter(({ value }) =>
+			Object.values(optionsCreditFromLocalStorage).every((o) => o.value !== value)
+		)
 	];
 	let optionsDebit = [
-		...JSON.parse(localStorage.getItem('debit') || '[]'),
-		...defaultBankOptions.debit
+		...optionsDebitFromLocalStorage,
+		...defaultBankOptions.debit.filter(({ value }) =>
+			Object.values(optionsDebitFromLocalStorage).every((o) => o.value !== value)
+		)
 	];
 	$: isCredit = record.credit > 0;
-	$: getTraverseOptions = (mainOptionsObject: Record<string, any>) => {
+	$: getTraverseOptions = (mainOptionsObject: Record<string, any>[]) => {
 		let placeholderOptions = mainOptionsObject;
 		if (propertiesIndex > 0) {
 			// let accumulatedOptions = [];
@@ -65,6 +71,16 @@
 			localStorage.debit = JSON.stringify(optionsDebit);
 		}
 	};
+	$: inputValue = record[property];
+	$: inputOptions = getTraverseOptions(isCredit ? optionsCredit : optionsDebit);
+	$: onRemoveOption = (removedOpt) => {
+		inputOptions = inputOptions.filter(
+			({ value, label }) => value !== removedOpt.value && label !== removedOpt.label
+		);
+		if (inputValue === removedOpt.value) {
+			inputValue = undefined;
+		}
+	};
 </script>
 
 <Input
@@ -74,9 +90,10 @@
 		records[recordIndex] = record;
 		records = records;
 	}}
-	value={getBankOptionSuggestion(record)[property]}
+	value={inputValue}
 	{onAddNewOption}
-	options={getTraverseOptions(isCredit ? optionsCredit : optionsDebit)}
+	{onRemoveOption}
+	options={inputOptions}
 	type={InputTypes.SELECT}
 	name={property}
 />

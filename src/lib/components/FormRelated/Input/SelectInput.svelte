@@ -30,6 +30,7 @@
 	export let multiple = false;
 	export let allowAddMore = true;
 	export let onAddNewOption: GeneralFunction | undefined;
+	export let onRemoveOption: GeneralFunction | undefined;
 	export let optionComponent:
 		| { component: typeof SvelteComponent; props?: Record<string, any> }
 		| undefined = undefined;
@@ -119,6 +120,7 @@
 	$: onKeyEscPressHandler = (e: KeyboardEvent) => {
 		if (e.key === 'Escape' && optionVisible) {
 			optionVisible = false;
+			selectRef?.blur?.();
 		}
 	};
 
@@ -192,7 +194,10 @@
 						on:focus={onInputFocus}
 						on:keypress={(e) => {
 							const v = e.target.value;
-							if (e.key === 'Enter') {
+							if (
+								e.key === 'Enter' &&
+								options.every(({ value, label }) => value !== v && label !== v)
+							) {
 								const newOption = { label: v, value: v };
 								// options = options.concat(newOption);
 								// onSelectOptionClick(newOption);
@@ -303,6 +308,13 @@
 						{#if flatten([value])?.includes(option.value)}
 							<Icon name="check" class="text-base ml-2 text-main-blue" />
 						{/if}
+						<Icon
+							on:click={() => {
+								onRemoveOption?.(option);
+							}}
+							name="close"
+							class="text-base ml-auto text-btn-cancel"
+						/>
 					</div>
 				{/each}
 			{/if}
