@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { defaultBankOptions, getBankOptionSuggestion } from '$lib/constants/banks';
 	import InputTypes from '$lib/constants/inputTypes';
 	import Input from '../FormRelated/Input/Input.svelte';
 	export let propertiesIndex = 0;
@@ -7,8 +8,14 @@
 	export let property: string;
 	export let properties: string[];
 	export let recordIndex = 0;
-	let optionsCredit = JSON.parse(localStorage.getItem('credit') || '[]');
-	let optionsDebit = JSON.parse(localStorage.getItem('debit') || '[]');
+	let optionsCredit = [
+		...JSON.parse(localStorage.getItem('credit') || '[]'),
+		...defaultBankOptions.credit
+	];
+	let optionsDebit = [
+		...JSON.parse(localStorage.getItem('debit') || '[]'),
+		...defaultBankOptions.debit
+	];
 	$: isCredit = record.credit > 0;
 	$: getTraverseOptions = (mainOptionsObject: Record<string, any>) => {
 		let placeholderOptions = mainOptionsObject;
@@ -67,6 +74,7 @@
 		records[recordIndex] = record;
 		records = records;
 	}}
+	value={getBankOptionSuggestion(record)[property]}
 	{onAddNewOption}
 	options={getTraverseOptions(isCredit ? optionsCredit : optionsDebit)}
 	type={InputTypes.SELECT}

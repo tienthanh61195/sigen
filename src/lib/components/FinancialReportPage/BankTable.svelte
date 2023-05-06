@@ -1,5 +1,9 @@
 <script lang="ts">
-	import type { ICommonBankExtraSchema, bankSchema } from '$lib/constants/banks';
+	import {
+		getBankOptionSuggestion,
+		type ICommonBankExtraSchema,
+		type bankSchema
+	} from '$lib/constants/banks';
 	import { ButtonTypes } from '$lib/constants/buttonTypes';
 	import InputTypes from '$lib/constants/inputTypes';
 	import { messagesStore } from '$lib/stores';
@@ -9,16 +13,20 @@
 	import BankTableExtraPropertySelector from './BankTableExtraPropertySelector.svelte';
 	import romanizeNumber from '$lib/utils/romanizeNumber';
 	import { DateTime } from 'luxon';
-	import { alignmentOnly, commonTitleStyle, titleStyle } from '$lib/utils/getDefaultExcelStyle';
+	import { commonStyle, commonTitleStyle, titleStyle } from '$lib/utils/getDefaultExcelStyle';
 	import ExtraPropertyInput from './ExtraPropertyInput.svelte';
 	import { isEmpty } from 'lodash';
 	export let bankType: string;
 	export let standardizedRecords: any[];
+	standardizedRecords = standardizedRecords.map((record) => ({
+		...record,
+		...getBankOptionSuggestion(record)
+	}));
 	export let standardizedHeaders: string[];
 	$: headers = (Object.keys(standardizedRecords[0]).filter((k) => !extraProperties.includes(k)) ||
 		[]) as (keyof typeof $messagesStore.bankSchema)[];
 
-	let extraProperties: string[] = [];
+	let extraProperties: string[] = ['extra-property-1', 'extra-property-2'];
 
 	$: onAddExtraColumnClick = () => {
 		// if (extraProperties?.length) {
@@ -31,11 +39,23 @@
 		extraProperties = extraProperties.concat(`extra-property-${extraProperties.length + 1}`);
 	};
 
+	$: onRemoveExtraColumnClick = () => {
+		// if (extraProperties?.length) {
+		// 	standardizedRecords = standardizedRecords.map((r) => {
+		// 		extraProperties.forEach((prop) => delete r[prop]);
+		// 		return r;
+		// 	});
+		// 	extraProperties = [];
+		// } else
+		if (extraProperties.length > 0)
+			extraProperties = extraProperties.slice(0, extraProperties.length - 1);
+	};
+
 	$: onExportClick = () => {
 		// table headers
 		const worksheetData = [
 			[],
-			['', alignmentOnly('Date'), alignmentOnly('Amount'), alignmentOnly('Subtotal')]
+			['', commonStyle({ v: 'Date' }), commonStyle({ v: 'Amount' }), commonStyle({ v: 'Subtotal' })]
 		];
 		// group data for excel display
 		const reportTimesOfApperance: any = {};
@@ -83,7 +103,6 @@
 							}
 
 							traverseDataReference = traverseDataReference[propertyValue];
-							console.log('credit', JSON.stringify(traverseDataReference));
 						}
 						traverseDataReference.data.push(record);
 						traverseDataReference.total += record.credit;
@@ -99,12 +118,7 @@
 							}
 							traverseDataReference = traverseDataReference[propertyValue];
 						}
-						console.log(
-							'debit outside',
-							traverseDataReference?.data,
-							traverseDataReference?.total,
-							traverseDataReference
-						);
+
 						traverseDataReference.data.push(record);
 						traverseDataReference.total += record.debit;
 					}
@@ -131,19 +145,20 @@
 		) => {
 			Object.entries(optionObject).forEach(([extraProperty, { total, data, options }], i) => {
 				const romanizedSectionNumber = romanizeNumber(i + 1);
-				worksheetData.push([
-					commonTitleStyle(`${indexString}.${romanizedSectionNumber}. ${extraProperty}`, 'left'),
-					'',
-					'',
-					commonTitleStyle(total, 'center')
-				]);
+				if (extraProperty)
+					worksheetData.push([
+						commonTitleStyle(`${indexString}.${romanizedSectionNumber}. ${extraProperty}`, 'left'),
+						'',
+						'',
+						commonTitleStyle(total, 'center')
+					]);
 				if (!isEmpty(options)) {
 					pushNestedData(options, `${indexString}.${romanizedSectionNumber}`, isCredit);
 				} else {
 					data.forEach((d) => {
 						worksheetData.push([
 							d.transactionContent,
-							d.transactionDateTime,
+							commonStyle({ v: d.transactionDateTime, alignment: 'center' }),
 							isCredit ? d.credit : d.debit
 						]);
 					});
@@ -157,14 +172,18 @@
 					commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
 					'',
 					'',
-					commonTitleStyle(total, 'center')
+					commonTitleStyle(total, 'center', '52c41a')
 				]);
 
 				if (!isEmpty(options)) {
 					pushNestedData(options, romanizedSectionNumber, true);
 				} else {
 					data.forEach((d) => {
-						worksheetData.push([d.transactionContent, d.transactionDateTime, d.credit]);
+						worksheetData.push([
+							d.transactionContent,
+							commonStyle({ v: d.transactionDateTime, alignment: 'center' }),
+							d.credit
+						]);
 					});
 				}
 			}
@@ -172,8 +191,8 @@
 		// Expense section
 		worksheetData.push([
 			titleStyle('OUTFLOWS', 'left'),
-			titleStyle(''),
-			titleStyle(''),
+			'',
+			'',
 			titleStyle(outflowsTotal, 'center')
 		]);
 		// worksheetData.push([
@@ -187,10 +206,10 @@
 			if (extraProperty !== 'undefined') {
 				const romanizedSectionNumber = romanizeNumber(i + 1);
 				worksheetData.push([
-					commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left'),
+					commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
 					'',
 					'',
-					commonTitleStyle(total, 'center')
+					commonTitleStyle(total, 'center', '52c41a')
 				]);
 				if (!isEmpty(options)) {
 					pushNestedData(options, romanizedSectionNumber, false);
@@ -201,11 +220,12 @@
 				}
 			}
 		});
+		const isLoss = inflowsTotal - outflowsTotal < 0;
 		worksheetData.push([
-			titleStyle('GROSS PROFIT', 'left'),
+			titleStyle('GROSS PROFIT', 'left', isLoss ? 'DC3545' : '52c41a'),
 			titleStyle(''),
 			titleStyle(''),
-			titleStyle(inflowsTotal - outflowsTotal, 'center')
+			titleStyle(inflowsTotal - outflowsTotal, 'center', isLoss ? 'DC3545' : '52c41a')
 		]);
 
 		const wb = xlsx.utils.book_new();
@@ -251,9 +271,11 @@
 			<!-- {extraProperties.length ? 'Remove Extra Column' : 'Add Extra Column'} -->
 			Add Column
 		</Button>
-		<Button on:click={onExportClick} class="ml-4" buttonType={ButtonTypes.PRIMARY}>
-			Export Report
+		<Button class="mx-4" on:click={onRemoveExtraColumnClick} buttonType={ButtonTypes.CANCEL}>
+			<!-- {extraProperties.length ? 'Remove Extra Column' : 'Add Extra Column'} -->
+			Remove Right Most Column
 		</Button>
+		<Button on:click={onExportClick} buttonType={ButtonTypes.PRIMARY}>Export Report</Button>
 	</div>
 	<table class="bank-table">
 		<tr>
@@ -261,7 +283,7 @@
 				<th>{$messagesStore.bankSchema[header]}</th>
 			{/each}
 			{#each extraProperties as extraProperty, i (extraProperty)}
-				<th>Extra Property - {i + 1}</th>
+				<th class="min-w-[180px]">Extra Property - {i + 1}</th>
 			{/each}
 		</tr>
 		{#each standardizedRecords as record, recordIndex}
