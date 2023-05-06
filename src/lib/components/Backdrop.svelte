@@ -1,34 +1,3 @@
-<!-- <script lang="ts">
-	import { browser } from '$app/environment';
-	import { tick } from 'svelte';
-	export let visible = false;
-	// import { portal } from "./actions";
-	const portal = (node: HTMLElement) => {
-		tick().then(() => {
-			if (browser) document.body.appendChild(node);
-		});
-		return {
-			destroy: () => {
-				if (document.body.contains(node) && browser) document.body.removeChild(node);
-			}
-		};
-	};
-</script>
-
-<div
-	class:opacity-0={!visible}
-	class:pointer-events-none={!visible}
-	class="custom-overlay"
-	use:portal
->
-	<slot />
-</div>
-
-<style lang="scss">
-	.custom-overlay {
-		@apply contents z-[99];
-	}
-</style> -->
 <script lang="ts" context="module">
 	let backdropElement: HTMLElement | null = null;
 	if (browser) {

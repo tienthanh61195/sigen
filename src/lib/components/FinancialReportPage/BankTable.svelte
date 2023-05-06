@@ -23,8 +23,9 @@
 		...getBankOptionSuggestion(record)
 	}));
 	export let standardizedHeaders: string[];
-	$: headers = (Object.keys(standardizedRecords[0]).filter((k) => !extraProperties.includes(k)) ||
-		[]) as (keyof typeof $messagesStore.bankSchema)[];
+	$: headers = (Object.keys(standardizedRecords?.[0] || {}).filter(
+		(k) => !extraProperties.includes(k)
+	) || []) as (keyof typeof $messagesStore.bankSchema)[];
 
 	let extraProperties: string[] = ['extra-property-1', 'extra-property-2'];
 
@@ -47,8 +48,12 @@
 		// 	});
 		// 	extraProperties = [];
 		// } else
-		if (extraProperties.length > 0)
-			extraProperties = extraProperties.slice(0, extraProperties.length - 1);
+		if (extraProperties.length === 0) return;
+		standardizedRecords = standardizedRecords.map((re) => {
+			delete re[extraProperties.at(-1)];
+			return re;
+		});
+		extraProperties = extraProperties.slice(0, extraProperties.length - 1);
 	};
 
 	$: onExportClick = () => {
@@ -283,7 +288,7 @@
 				<th>{$messagesStore.bankSchema[header]}</th>
 			{/each}
 			{#each extraProperties as extraProperty, i (extraProperty)}
-				<th class="min-w-[180px]">Extra Property - {i + 1}</th>
+				<th class="min-w-[220px]">Extra Property - {i + 1}</th>
 			{/each}
 		</tr>
 		{#each standardizedRecords as record, recordIndex}
