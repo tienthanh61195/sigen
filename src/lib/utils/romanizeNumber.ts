@@ -1,6 +1,6 @@
 function romanizeNumber(num) {
-	if (isNaN(num)) return NaN;
-	var digits = String(+num).split(''),
+	if (isNaN(num)) return '';
+	let digits = String(+num).split(''),
 		key = [
 			'',
 			'C',

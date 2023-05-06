@@ -19,6 +19,7 @@
 	// type $$Props = InputPropsForInputComponents;
 
 	export let value: any | undefined = undefined;
+	export let disabled = false;
 	export let label: string | undefined = '';
 	let className: string | undefined = undefined;
 	export { className as class };
@@ -81,6 +82,7 @@
 	// }
 
 	$: onSelectOptionClick = async ({ value: newOptionValue }: InputOption) => {
+		if (disabled) return;
 		if (newOptionValue === value && !multiple) return;
 		const existingValue = multiple ? value : value ? flatten([value]) : [];
 		let newValue: any;
@@ -159,6 +161,7 @@
 	});
 	const dispatch = createEventDispatcher();
 	const onInputFocus = (e: any) => {
+		if (disabled) return;
 		dispatch('focus', e);
 		onSelectInputClick(e);
 	};
@@ -175,11 +178,17 @@
 	position="bottom"
 >
 	<div class="w-full flex" bind:this={selectContainerRef}>
-		<input {...inputProps} on:click={onSelectInputClick} on:input={onSelectInputChange} />
+		<input
+			{disabled}
+			{...inputProps}
+			on:click={onSelectInputClick}
+			on:input={onSelectInputChange}
+		/>
 		{#if disableSearch}
 			{#if allowAddMore}
 				<div class={divClassname}>
 					<input
+						{disabled}
 						on:focus={onInputFocus}
 						on:keypress={(e) => {
 							const v = e.target.value;
@@ -239,6 +248,7 @@
 					{/each}
 				{/if}
 				<input
+					{disabled}
 					on:focusout
 					on:focus
 					on:blur
@@ -266,7 +276,7 @@
 				: '150'}px"
 			use:clickOutsideElement
 			on:outclick={(e) => {
-				if (!selectContainerRef?.contains(e.detail.test.target)) changeOptionVisible();
+				if (!selectContainerRef?.contains(e.detail.event.target)) changeOptionVisible();
 			}}
 		>
 			{#if !filteredOptions?.length}
@@ -276,7 +286,7 @@
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<div
 						class:bg-gray-200={flatten([value])?.includes(option.value)}
-						class="p-2 cursor-pointer hover:bg-gray-100 flex items-center dumamay"
+						class="p-2 cursor-pointer hover:bg-gray-100 flex items-center"
 						on:click={() => {
 							onSelectOptionClick(option);
 						}}

@@ -27,6 +27,7 @@
 	export let name = '';
 	export let names = '';
 	export let label = '';
+	export let disabled = false;
 	export let labelPosition: LABEL_POSITIONS = LABEL_POSITIONS.TOP_OVERRIDE;
 	export let type: InputTypes = InputTypes.TEXT;
 	export let onChange: InputComponentChangeHandler | undefined = undefined;
@@ -125,6 +126,7 @@
 	{...$$restProps}
 	{error}
 	labelPosition={finalLabelPosition}
+	{disabled}
 >
 	<svelte:component
 		this={component}
@@ -144,5 +146,6 @@
 		onChange={onInputChange}
 		class={inputClassName}
 		{optionComponent}
+		{disabled}
 	/>
 </BaseInput>

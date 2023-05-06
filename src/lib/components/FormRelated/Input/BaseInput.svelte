@@ -14,7 +14,7 @@
 	import LABEL_POSITIONS from '$lib/constants/labelPositions';
 	import { onMount, setContext } from 'svelte';
 	import { commonInputSpacing } from './Input.svelte';
-
+	export let disabled = false;
 	export let id: string | undefined = undefined;
 	export let label: string | undefined = undefined;
 	export let value: any;
@@ -86,6 +86,7 @@
 		style={`--commonInputSpacing: ${commonInputSpacing}`}
 		class={`input-container ${originInputContainerClasName}`}
 		class:focus-within={isInputFocused}
+		class:disabled
 	>
 		<div class={`input ${inputClassName}`}>
 			<div class="input-border-placeholder" />
@@ -153,6 +154,12 @@
 			& :global(.input-substitution > .placeholder-substitution) {
 				padding: var(--commonInputSpacing);
 				@apply w-full inset-0 outline-none bg-transparent;
+			}
+			&.disabled :global(textarea),
+			&.disabled :global(input),
+			&.disabled :global(.input-substitution),
+			&.disabled :global(.input-substitution > .placeholder-substitution) {
+				@apply cursor-not-allowed bg-disabled;
 			}
 
 			& .label {
