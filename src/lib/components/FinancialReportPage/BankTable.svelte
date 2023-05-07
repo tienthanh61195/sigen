@@ -2,7 +2,8 @@
 	import {
 		getBankOptionSuggestion,
 		type ICommonBankExtraSchema,
-		type bankSchema
+		type bankSchema,
+		defaultBankOptions
 	} from '$lib/constants/banks';
 	import { ButtonTypes } from '$lib/constants/buttonTypes';
 	import InputTypes from '$lib/constants/inputTypes';
@@ -266,8 +267,20 @@
 		ws['!rows'] = wsrows;
 		xlsx.writeFile(wb, `${bankType}-${reportTimePeriod}.xlsx`, {});
 	};
-	$: {
-	}
+	const optionsCreditFromLocalStorage = JSON.parse(localStorage.getItem('credit') || '[]');
+	const optionsDebitFromLocalStorage = JSON.parse(localStorage.getItem('debit') || '[]');
+	let optionsCredit = [
+		...optionsCreditFromLocalStorage,
+		...defaultBankOptions.credit.filter(({ value }) =>
+			Object.values(optionsCreditFromLocalStorage).every((o) => o.value !== value)
+		)
+	];
+	let optionsDebit = [
+		...optionsDebitFromLocalStorage,
+		...defaultBankOptions.debit.filter(({ value }) =>
+			Object.values(optionsDebitFromLocalStorage).every((o) => o.value !== value)
+		)
+	];
 </script>
 
 <div>
@@ -306,6 +319,8 @@
 				{#each extraProperties as extraProperty, extraPropertiesIndex (extraProperty)}
 					<td class="w-auto items-center">
 						<ExtraPropertyInput
+							bind:optionsCredit
+							bind:optionsDebit
 							{record}
 							bind:records={standardizedRecords}
 							property={extraProperty}

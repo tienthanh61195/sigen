@@ -329,7 +329,7 @@
 		}
 	}
 	.input-options-container {
-		@apply bg-white z-50 rounded-sm border border-gray-300;
+		@apply bg-white z-50 rounded-sm border border-gray-300 max-h-[400px] overflow-auto;
 		// @apply transition-all duration-100;
 		box-shadow: 0 4px 5px -5px lightgrey;
 	}

@@ -8,20 +8,9 @@
 	export let property: string;
 	export let properties: string[];
 	export let recordIndex = 0;
-	const optionsCreditFromLocalStorage = JSON.parse(localStorage.getItem('credit') || '[]');
-	const optionsDebitFromLocalStorage = JSON.parse(localStorage.getItem('debit') || '[]');
-	let optionsCredit = [
-		...optionsCreditFromLocalStorage,
-		...defaultBankOptions.credit.filter(({ value }) =>
-			Object.values(optionsCreditFromLocalStorage).every((o) => o.value !== value)
-		)
-	];
-	let optionsDebit = [
-		...optionsDebitFromLocalStorage,
-		...defaultBankOptions.debit.filter(({ value }) =>
-			Object.values(optionsDebitFromLocalStorage).every((o) => o.value !== value)
-		)
-	];
+	export let optionsCredit: any[];
+	export let optionsDebit: any[];
+
 	$: isCredit = record.credit > 0;
 	$: getTraverseOptions = (mainOptionsObject: Record<string, any>[]) => {
 		let placeholderOptions = mainOptionsObject;
@@ -33,6 +22,14 @@
 				const extractedOptions = placeholderOptions.find(
 					(optCred) => optCred.value === record[prop]
 				);
+				// if (isCredit && propertiesIndex > 0)
+				// 	console.log(
+				// 		record[property],
+				// 		record[properties[0]],
+				// 		extractedOptions,
+				// 		placeholderOptions
+				// 	);
+
 				if (extractedOptions) {
 					if (!extractedOptions.options) {
 						extractedOptions.options = [];
@@ -41,6 +38,7 @@
 				}
 			});
 		}
+
 		return placeholderOptions;
 	};
 
@@ -72,7 +70,10 @@
 		}
 	};
 	$: inputValue = record[property];
-	$: inputOptions = getTraverseOptions(isCredit ? optionsCredit : optionsDebit);
+	let inputOptions = [];
+	$: {
+		inputOptions = getTraverseOptions(isCredit ? optionsCredit : optionsDebit);
+	}
 	$: onRemoveOption = (removedOpt) => {
 		inputOptions = inputOptions.filter(
 			({ value, label }) => value !== removedOpt.value && label !== removedOpt.label
@@ -81,6 +82,9 @@
 			inputValue = undefined;
 		}
 	};
+	$: {
+		// if (isCredit && propertiesIndex > 0) console.log('OPTIONS IS', optionsCredit, inputOptions);
+	}
 </script>
 
 <Input
