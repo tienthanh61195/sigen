@@ -2,6 +2,7 @@
 	"en": {
 		"bankSchema": {
 			"id": "Item #",
+			"bankType": "Bank",
 			"transactionDateTime": "Transaction Date Time",
 			"credit": "Credit",
 			"debit": "Debit",

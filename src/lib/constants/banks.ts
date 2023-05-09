@@ -1,16 +1,17 @@
 enum Banks {
-	vpBank = 'vpBank',
-	mbBank = 'mbBank',
-	vietinBank = 'vietinBank'
+	vpBank = 'VP Bank',
+	mbBank = 'MB Bank',
+	vietinBank = 'VietinBank'
 }
 export interface ICommonBankExtraSchema {
 	value: string;
 	label: string;
 	options?: ICommonBankExtraSchema[];
 }
-export const bankSchema: Record<Banks, { value: string; label: string }[]> = {
+export const bankSchema: Record<keyof typeof Banks, { value: string; label: string }[]> = {
 	vpBank: [
 		{ value: 'id', label: 'STT' },
+		{ value: 'bankType', label: 'Bank' },
 		{ value: 'transactionContent', label: 'Nội dung giao dịch' },
 		{ value: 'transactionDateTime', label: 'Thời gian giao dịch' },
 		{ value: 'credit', label: 'Số tiền ghi có' },
@@ -18,6 +19,7 @@ export const bankSchema: Record<Banks, { value: string; label: string }[]> = {
 	],
 	mbBank: [
 		{ value: 'id', label: 'STT' },
+		{ value: 'bankType', label: 'Bank' },
 		{ value: 'transactionContent', label: 'NỘI DUNG' },
 		{ value: 'transactionDateTime', label: 'NGÀY GIAO DỊCH' },
 		{ value: 'credit', label: 'GHI CÓ' },
@@ -25,6 +27,7 @@ export const bankSchema: Record<Banks, { value: string; label: string }[]> = {
 	],
 	vietinBank: [
 		{ value: 'id', label: 'STT' },
+		{ value: 'bankType', label: 'Bank' },
 		{ value: 'transactionContent', label: 'Nội dung' },
 		{ value: 'transactionDateTime', label: 'Ngày' },
 		{ value: 'credit', label: 'Ghi có' },
@@ -92,7 +95,7 @@ export const getBankOptionSuggestion = ({ credit, transactionContent }: any) => 
 		//   sub = 'Others';
 		// }
 		else {
-			main = 'Cost of good sold';
+			main = 'Cost of goods sold';
 		}
 	}
 	return { ['extra-property-1']: main, ['extra-property-2']: sub };
@@ -109,7 +112,7 @@ const defaultBankReportGroupOptions = {
 		]
 	},
 	debit: {
-		'Cost of good sold': [
+		'Cost of goods sold': [
 			'Individual first aid class',
 			'Corporate first aid class',
 			'First aid kit',

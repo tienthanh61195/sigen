@@ -2,7 +2,7 @@ import Banks, { bankSchema, type Bank } from '$lib/constants/banks';
 import { isNumber, isObjectLike, isString } from 'lodash';
 import { read } from 'xlsx';
 import convertFinanceNumberToNumber from './convertFinanceNumberToNumber';
-type BankStringMap = Record<string, string>;
+type BankStringMap = Record<keyof typeof Banks, string>;
 const banksStringMap: BankStringMap = {
 	vpBank:
 		'Số dư tham chiếu: là số dư thực tế tại thời điểm phát sinh giao dịch, bao gồm cả các giao dịch phát sinh sau giờ khóa sổ giao dịch trong ngày của Ngân hàng.',
@@ -12,10 +12,10 @@ const banksStringMap: BankStringMap = {
 };
 const getBankType = (str: string | number) => {
 	if (typeof str !== 'string') return '';
-	let bankType: any;
+	let bankType: keyof typeof Banks | '' = '';
 	for (const bank in banksStringMap) {
-		if (str.indexOf(banksStringMap[bank]) > -1) {
-			bankType = bank;
+		if (str.indexOf(banksStringMap[bank as keyof typeof Banks]) > -1) {
+			bankType = bank as keyof typeof Banks;
 			break;
 		}
 	}
@@ -124,12 +124,16 @@ const standardizeBankData = async (file: Blob | File) => {
 		const bankRecordIndex = Number(currentRowNumber) - Number(rowNumberForStartingRecordIndex) - 1;
 		const header = bankHeaders.find((bh) => bh.col === currentColLetter);
 		if (header) {
+			if (!bankRecords[bankRecordIndex] && bankType) {
+				bankRecords[bankRecordIndex] = { Bank: Banks[bankType] };
+			}
 			bankRecords[bankRecordIndex] = {
 				...(bankRecords[bankRecordIndex] || {}),
 				[header.value]: convertFinanceNumberToNumber(excelValue)
 			};
 		}
 	}
+
 	// if (colLetterForRecordTable && rowNumberForStartingRecordIndex) {
 	//   let currentRowNumber = '';
 	//   let currentColLetter = '';
@@ -144,7 +148,7 @@ const standardizeBankData = async (file: Blob | File) => {
 	if (!bankType) return '';
 	bankRecords = bankRecords.filter((br) => {
 		// Special case of MBBank having only "transaction amount" instead of dividing into outflow and inflow;
-		if (bankType === Banks.vietinBank) {
+		if (Banks[bankType] === Banks.vietinBank) {
 			const amount = br['Số tiền GD'];
 			br['Ghi có'] = amount > 0 ? amount : 0;
 			br['Ghi nợ'] = amount < 0 ? Math.abs(amount) : 0;

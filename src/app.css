@@ -39,16 +39,6 @@ body.input-autofill-handle .input-container.has-label-top-override .input-substi
 	opacity: 0;
 }
 
-::-moz-selection {
-	background-color: inherit;
-	color: inherit;
-}
-
-::selection {
-	background-color: inherit;
-	color: inherit;
-}
-
 #svelte__backdrop {
 	position: fixed;
 	top: 0;

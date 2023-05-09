@@ -18,13 +18,18 @@ export const commonStyle = ({
 		font: { bold, color: { rgb: color }, sz }
 	}
 });
-export const titleStyle = (v: string | number, alignment = 'left', color = '1d3993') => ({
+export const titleStyle = (
+	v: string | number,
+	alignment = 'left',
+	bgColor = '1a73e8',
+	color = 'FFFFFF'
+) => ({
 	v,
 	t: 's',
 	s: {
 		alignment: { vertical: 'center', horizontal: alignment },
 		font: { bold: true, color: { rgb: color }, sz: '14' },
-		fill: { theme: 4, patternType: 'solid' }
+		fill: { fgColor: { rgb: bgColor } }
 	}
 });
 export const commonTitleStyle = (v: string | number, alignment = 'left', color = 'ff9300') => ({

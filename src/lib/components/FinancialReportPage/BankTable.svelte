@@ -16,14 +16,13 @@
 	import { DateTime } from 'luxon';
 	import { commonStyle, commonTitleStyle, titleStyle } from '$lib/utils/getDefaultExcelStyle';
 	import ExtraPropertyInput from './ExtraPropertyInput.svelte';
-	import { isEmpty } from 'lodash';
-	export let bankType: string;
+	import { isEmpty, isString } from 'lodash';
+	// export let bankType: string;
 	export let standardizedRecords: any[];
 	standardizedRecords = standardizedRecords.map((record) => ({
 		...record,
 		...getBankOptionSuggestion(record)
 	}));
-	export let standardizedHeaders: string[];
 	$: headers = (Object.keys(standardizedRecords?.[0] || {}).filter(
 		(k) => !extraProperties.includes(k)
 	) || []) as (keyof typeof $messagesStore.bankSchema)[];
@@ -197,8 +196,8 @@
 		// Expense section
 		worksheetData.push([
 			titleStyle('OUTFLOWS', 'left'),
-			'',
-			'',
+			titleStyle(''),
+			titleStyle(''),
 			titleStyle(outflowsTotal, 'center')
 		]);
 		// worksheetData.push([
@@ -207,9 +206,41 @@
 		// 	titleStyle(''),
 		// 	titleStyle(outflowsTotal, 'center')
 		// ]);
-
+		const outFlowsDefaultProperties = [
+			'Cost of goods sold',
+			[
+				titleStyle('GROSS PROFIT', 'left', '385d7e'),
+				titleStyle('', 'center', '385d7e'),
+				titleStyle('', 'center', '385d7e'),
+				titleStyle(inflowsTotal - outflows['Cost of goods sold'].total, 'center', '385d7e')
+			],
+			'Fixed expenses'
+		];
+		outFlowsDefaultProperties.forEach((extraProperty, i) => {
+			if (isString(extraProperty)) {
+				if (outflows[extraProperty]) {
+					const { total, data, options } = outflows[extraProperty];
+					const romanizedSectionNumber = romanizeNumber(i + 1);
+					worksheetData.push([
+						commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
+						'',
+						'',
+						commonTitleStyle(total, 'center', '52c41a')
+					]);
+					if (!isEmpty(options)) {
+						pushNestedData(options, romanizedSectionNumber, false);
+					} else {
+						data.forEach((d) => {
+							worksheetData.push([d.transactionContent, d.transactionDateTime, d.debit]);
+						});
+					}
+				}
+			} else {
+				worksheetData.push(extraProperty);
+			}
+		});
 		Object.entries(outflows).forEach(([extraProperty, { total, data, options }], i) => {
-			if (extraProperty !== 'undefined') {
+			if (extraProperty !== 'undefined' && !outFlowsDefaultProperties.includes(extraProperty)) {
 				const romanizedSectionNumber = romanizeNumber(i + 1);
 				worksheetData.push([
 					commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
@@ -226,12 +257,12 @@
 				}
 			}
 		});
-		const isLoss = inflowsTotal - outflowsTotal < 0;
+		// const isLoss = inflowsTotal - outflowsTotal < 0;
 		worksheetData.push([
-			titleStyle('GROSS PROFIT', 'left', isLoss ? 'DC3545' : '52c41a'),
-			titleStyle(''),
-			titleStyle(''),
-			titleStyle(inflowsTotal - outflowsTotal, 'center', isLoss ? 'DC3545' : '52c41a')
+			titleStyle('NET PROFIT', 'left', '385d7e'),
+			titleStyle('', 'center', '385d7e'),
+			titleStyle('', 'center', '385d7e'),
+			titleStyle(inflowsTotal - outflowsTotal, 'center', '385d7e')
 		]);
 
 		const wb = xlsx.utils.book_new();
@@ -265,7 +296,7 @@
 		ws['!merges'] = merge;
 		ws['!cols'] = wscols;
 		ws['!rows'] = wsrows;
-		xlsx.writeFile(wb, `${bankType}-${reportTimePeriod}.xlsx`, {});
+		xlsx.writeFile(wb, `report-${reportTimePeriod}.xlsx`, {});
 	};
 	const optionsCreditFromLocalStorage = JSON.parse(localStorage.getItem('credit') || '[]');
 	const optionsDebitFromLocalStorage = JSON.parse(localStorage.getItem('debit') || '[]');
@@ -281,9 +312,17 @@
 			Object.values(optionsDebitFromLocalStorage).every((o) => o.value !== value)
 		)
 	];
+	const headerSizes = {
+		id: 5,
+		bankType: 5,
+		transactionContent: 25,
+		transactionDateTime: 12,
+		credit: 9,
+		debit: 9
+	};
 </script>
 
-<div>
+<div class="h-full w-full flex flex-col">
 	<div class="mb-4 flex">
 		<Button on:click={onAddExtraColumnClick} buttonType={ButtonTypes.SECONDARY}>
 			<!-- {extraProperties.length ? 'Remove Extra Column' : 'Add Extra Column'} -->
@@ -295,44 +334,53 @@
 		</Button>
 		<Button on:click={onExportClick} buttonType={ButtonTypes.PRIMARY}>Export Report</Button>
 	</div>
-	<table class="bank-table">
-		<tr>
-			{#each headers as header, i (header)}
-				<th>{$messagesStore.bankSchema[header]}</th>
-			{/each}
-			{#each extraProperties as extraProperty, i (extraProperty)}
-				<th class="min-w-[220px]">Extra Property - {i + 1}</th>
-			{/each}
-		</tr>
-		{#each standardizedRecords as record, recordIndex}
+	<div class="w-full h-full overflow-auto">
+		<table class="bank-table w-full">
 			<tr>
-				{#each headers as header (header)}
-					<td
-						class:text-left={header === 'transactionContent'}
-						class:font-semibold={['credit', 'debit'].includes(header) && Number(record[header]) > 0}
-						class:text-lg={['credit', 'debit'].includes(header)}
-						class:text-red-500={header === 'debit' && Number(record[header]) > 0}
-						class:text-green-500={header === 'credit' && Number(record[header]) > 0}
-						class="text-center">{record[header]}</td
+				{#each headers as header, i (header)}
+					<th style="width:{headerSizes[header] ? `${headerSizes[header]}%` : 'auto'}"
+						>{$messagesStore.bankSchema[header]}</th
 					>
 				{/each}
-				{#each extraProperties as extraProperty, extraPropertiesIndex (extraProperty)}
-					<td class="w-auto items-center">
-						<ExtraPropertyInput
-							bind:optionsCredit
-							bind:optionsDebit
-							{record}
-							bind:records={standardizedRecords}
-							property={extraProperty}
-							bind:properties={extraProperties}
-							propertiesIndex={extraPropertiesIndex}
-							{recordIndex}
-						/>
-					</td>
+				{#each extraProperties as extraProperty, i (extraProperty)}
+					<th class="min-w-[220px]">Extra Property - {i + 1}</th>
 				{/each}
 			</tr>
-		{/each}
-	</table>
+			{#each standardizedRecords as record, recordIndex}
+				<tr>
+					{#each headers as header (header)}
+						<td
+							class:text-left={header === 'transactionContent'}
+							class:font-semibold={['credit', 'debit'].includes(header) &&
+								Number(record[header]) > 0}
+							class:text-lg={['credit', 'debit'].includes(header)}
+							class:text-red-500={header === 'debit' && Number(record[header]) > 0}
+							class:text-green-500={header === 'credit' && Number(record[header]) > 0}
+							class="text-center"
+						>
+							{['credit', 'debit'].includes(header)
+								? record[header].toLocaleString()
+								: record[header]}
+						</td>
+					{/each}
+					{#each extraProperties as extraProperty, extraPropertiesIndex (extraProperty)}
+						<td class="w-auto items-center">
+							<ExtraPropertyInput
+								bind:optionsCredit
+								bind:optionsDebit
+								{record}
+								bind:records={standardizedRecords}
+								property={extraProperty}
+								bind:properties={extraProperties}
+								propertiesIndex={extraPropertiesIndex}
+								{recordIndex}
+							/>
+						</td>
+					{/each}
+				</tr>
+			{/each}
+		</table>
+	</div>
 </div>
 
 <style lang="scss">
@@ -340,7 +388,7 @@
 		@apply border-collapse overflow-auto;
 		& th,
 		td {
-			@apply border border-black p-3 h-20;
+			@apply border border-black p-1 h-20;
 		}
 	}
 </style>
