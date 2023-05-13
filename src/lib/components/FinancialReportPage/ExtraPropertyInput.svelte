@@ -84,6 +84,7 @@
 	};
 	$: {
 		// if (isCredit && propertiesIndex > 0) console.log('OPTIONS IS', optionsCredit, inputOptions);
+		// console.log(records, record);
 	}
 </script>
 

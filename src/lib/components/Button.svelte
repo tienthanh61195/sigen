@@ -31,6 +31,8 @@
 				break;
 			case ButtonTypes.TEXT_ONLY:
 				classNameByButtonTypes = 'bg-transparent border-transparent';
+			case ButtonTypes.BORDER:
+				classNameByButtonTypes = 'bg-transparent border border-main-blue text-main-blue';
 				break;
 			default:
 				break;

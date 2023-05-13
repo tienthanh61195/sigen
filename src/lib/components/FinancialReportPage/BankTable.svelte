@@ -19,6 +19,7 @@
 	import { isEmpty, isString } from 'lodash';
 	// export let bankType: string;
 	export let standardizedRecords: any[];
+	let extraRecords: any[] = [];
 	standardizedRecords = standardizedRecords.map((record) => ({
 		...record,
 		...getBankOptionSuggestion(record)
@@ -28,6 +29,20 @@
 	) || []) as (keyof typeof $messagesStore.bankSchema)[];
 
 	let extraProperties: string[] = ['extra-property-1', 'extra-property-2'];
+
+	$: onAddExtraRowClick = () => {
+		// if (extraProperties?.length) {
+		// 	standardizedRecords = standardizedRecords.map((r) => {
+		// 		extraProperties.forEach((prop) => delete r[prop]);
+		// 		return r;
+		// 	});
+		// 	extraProperties = [];
+		// } else
+		extraRecords = extraRecords.concat({
+			id: standardizedRecords.length + 1 + extraRecords.length
+		});
+		bankTableContainerRef.scrollTo(0, bankTableContainerRef.height);
+	};
 
 	$: onAddExtraColumnClick = () => {
 		// if (extraProperties?.length) {
@@ -58,6 +73,8 @@
 
 	$: onExportClick = () => {
 		// table headers
+		const aggregateRecords = standardizedRecords.concat(...extraRecords);
+
 		const worksheetData = [
 			[],
 			['', commonStyle({ v: 'Date' }), commonStyle({ v: 'Amount' }), commonStyle({ v: 'Subtotal' })]
@@ -66,7 +83,7 @@
 		const reportTimesOfApperance: any = {};
 		let reportTimePeriod = '';
 
-		const { inflows, outflows, inflowsTotal, outflowsTotal } = standardizedRecords.reduce(
+		const { inflows, outflows, inflowsTotal, outflowsTotal } = aggregateRecords.reduce(
 			(acc, record, i) => {
 				const recordDateFormatWithSecond = DateTime.fromFormat(
 					record.transactionDateTime,
@@ -80,7 +97,7 @@
 					? recordDateFormatWithSecond.toFormat('LL/yyyy')
 					: recordDateFormatWithoutSecond.toFormat('LL/yyyy');
 				reportTimesOfApperance[recordDate] = (reportTimesOfApperance[recordDate] || 0) + 1;
-				if (i === standardizedRecords.length - 1) {
+				if (i === aggregateRecords.length - 1) {
 					let currentMaxCount = 0;
 					Object.entries(reportTimesOfApperance).forEach(([time, count]: any) => {
 						if (count > currentMaxCount) {
@@ -164,7 +181,7 @@
 						worksheetData.push([
 							d.transactionContent,
 							commonStyle({ v: d.transactionDateTime, alignment: 'center' }),
-							isCredit ? d.credit : d.debit
+							commonStyle({ v: isCredit ? d.credit : d.debit, alignment: 'left' })
 						]);
 					});
 				}
@@ -320,11 +337,16 @@
 		credit: 9,
 		debit: 9
 	};
+	let bankTableContainerRef: any;
 </script>
 
 <div class="h-full w-full flex flex-col">
 	<div class="mb-4 flex">
-		<Button on:click={onAddExtraColumnClick} buttonType={ButtonTypes.SECONDARY}>
+		<Button on:click={onAddExtraRowClick} buttonType={ButtonTypes.BORDER}>
+			<!-- {extraProperties.length ? 'Remove Extra Column' : 'Add Extra Column'} -->
+			Add Row
+		</Button>
+		<Button class="ml-4" on:click={onAddExtraColumnClick} buttonType={ButtonTypes.SECONDARY}>
 			<!-- {extraProperties.length ? 'Remove Extra Column' : 'Add Extra Column'} -->
 			Add Column
 		</Button>
@@ -334,7 +356,7 @@
 		</Button>
 		<Button on:click={onExportClick} buttonType={ButtonTypes.PRIMARY}>Export Report</Button>
 	</div>
-	<div class="w-full h-full overflow-auto">
+	<div class="w-full h-full overflow-auto" bind:this={bankTableContainerRef}>
 		<table class="bank-table w-full">
 			<tr>
 				{#each headers as header, i (header)}
@@ -370,6 +392,49 @@
 								bind:optionsDebit
 								{record}
 								bind:records={standardizedRecords}
+								property={extraProperty}
+								bind:properties={extraProperties}
+								propertiesIndex={extraPropertiesIndex}
+								{recordIndex}
+							/>
+						</td>
+					{/each}
+				</tr>
+			{/each}
+			{#each extraRecords as record, recordIndex}
+				<tr>
+					{#each headers as header (header)}
+						<td class="text-center">
+							<div>
+								{#if header === 'id'}
+									{record[header]}
+								{:else}
+									<Input
+										value={record[header]}
+										onChange={(v) => {
+											if (header === 'credit' && Number(v) > 0) {
+												v = Number(v);
+												record['debit'] = 0;
+											} else if (header === 'debit' && Number(v) > 0) {
+												v = Number(v);
+												record['credit'] = 0;
+											}
+											record[header] = v;
+											extraRecords[recordIndex] = record;
+											extraRecords = extraRecords;
+										}}
+									/>
+								{/if}
+							</div>
+						</td>
+					{/each}
+					{#each extraProperties as extraProperty, extraPropertiesIndex (extraProperty)}
+						<td class="w-auto items-center">
+							<ExtraPropertyInput
+								bind:optionsCredit
+								bind:optionsDebit
+								{record}
+								bind:records={extraRecords}
 								property={extraProperty}
 								bind:properties={extraProperties}
 								propertiesIndex={extraPropertiesIndex}
