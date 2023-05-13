@@ -17,6 +17,7 @@
 	import { commonStyle, commonTitleStyle, titleStyle } from '$lib/utils/getDefaultExcelStyle';
 	import ExtraPropertyInput from './ExtraPropertyInput.svelte';
 	import { isEmpty, isString } from 'lodash';
+	import Icon from '../Icon.svelte';
 	// export let bankType: string;
 	export let standardizedRecords: any[];
 	let extraRecords: any[] = [];
@@ -401,14 +402,26 @@
 					{/each}
 				</tr>
 			{/each}
-			{#each extraRecords as record, recordIndex}
+			{#each extraRecords as record, recordIndex (record.id)}
 				<tr>
 					{#each headers as header (header)}
 						<td class="text-center">
-							<div>
-								{#if header === 'id'}
-									{record[header]}
-								{:else}
+							{#if header === 'id'}
+								<div class="flex justify-center items-center">
+									<Button
+										on:click={() => {
+											extraRecords = extraRecords
+												.slice(0, recordIndex)
+												.concat(extraRecords.slice(recordIndex + 1));
+										}}
+										style="padding:5px"
+										class="w-10 border-danger"
+										buttonType={ButtonTypes.BORDER}
+										><Icon name="close" class="text-danger text-sm" /></Button
+									>
+								</div>
+							{:else}
+								<div>
 									<Input
 										value={record[header]}
 										onChange={(v) => {
@@ -424,8 +437,8 @@
 											extraRecords = extraRecords;
 										}}
 									/>
-								{/if}
-							</div>
+								</div>
+							{/if}
 						</td>
 					{/each}
 					{#each extraProperties as extraProperty, extraPropertiesIndex (extraProperty)}
