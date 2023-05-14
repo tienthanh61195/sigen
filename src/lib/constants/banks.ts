@@ -1,7 +1,8 @@
 enum Banks {
 	vpBank = 'VP Bank',
 	mbBank = 'MB Bank',
-	vietinBank = 'VietinBank'
+	vietinBank = 'Vietinbank',
+	vcBank = 'Vietcombank'
 }
 export interface ICommonBankExtraSchema {
 	value: string;
@@ -32,6 +33,14 @@ export const bankSchema: Record<keyof typeof Banks, { value: string; label: stri
 		{ value: 'transactionDateTime', label: 'Ngày' },
 		{ value: 'credit', label: 'Ghi có' },
 		{ value: 'debit', label: 'Ghi nợ' }
+	],
+	vcBank: [
+		{ value: 'id', label: 'STT' },
+		{ value: 'bankType', label: 'Bank' },
+		{ value: 'transactionContent', label: 'Mô tả' },
+		{ value: 'transactionDateTime', label: 'Ngày giao dịch' },
+		{ value: 'credit', label: 'Số tiền ghi có' },
+		{ value: 'debit', label: 'Số tiền ghi nợ' }
 	]
 };
 

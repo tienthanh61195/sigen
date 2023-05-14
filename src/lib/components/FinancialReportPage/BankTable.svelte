@@ -42,8 +42,13 @@
 		extraRecords = extraRecords.concat({
 			id: standardizedRecords.length + 1 + extraRecords.length
 		});
-		bankTableContainerRef.scrollTo(0, bankTableContainerRef.height);
 	};
+
+	$: {
+		if (extraRecords.length > 0 && bankTableContainerRef) {
+			bankTableContainerRef.scrollTo(0, bankTableContainerRef.scrollHeight);
+		}
+	}
 
 	$: onAddExtraColumnClick = () => {
 		// if (extraProperties?.length) {
@@ -84,8 +89,11 @@
 		const reportTimesOfApperance: any = {};
 		let reportTimePeriod = '';
 
-		const { inflows, outflows, inflowsTotal, outflowsTotal } = aggregateRecords.reduce(
+		let { inflows, outflows, inflowsTotal, outflowsTotal } = aggregateRecords.reduce(
 			(acc, record, i) => {
+				record.credit = Number(record.credit || 0);
+				record.debit = Number(record.debit || 0);
+
 				const recordDateFormatWithSecond = DateTime.fromFormat(
 					record.transactionDateTime,
 					'dd/LL/yyyy HH:mm:ss'
@@ -94,9 +102,14 @@
 					record.transactionDateTime,
 					'dd/LL/yyyy HH:mm'
 				);
-				const recordDate = recordDateFormatWithSecond.isValid
-					? recordDateFormatWithSecond.toFormat('LL/yyyy')
-					: recordDateFormatWithoutSecond.toFormat('LL/yyyy');
+				const recordDateFormatWithoutTime = DateTime.fromFormat(
+					record.transactionDateTime,
+					'dd/LL/yyyy'
+				);
+				const recordDate =
+					[recordDateFormatWithSecond, recordDateFormatWithoutSecond, recordDateFormatWithoutTime]
+						.find((date) => date.isValid)
+						?.toFormat('LL/yyyy') || '';
 				reportTimesOfApperance[recordDate] = (reportTimesOfApperance[recordDate] || 0) + 1;
 				if (i === aggregateRecords.length - 1) {
 					let currentMaxCount = 0;
@@ -375,14 +388,14 @@
 						<td
 							class:text-left={header === 'transactionContent'}
 							class:font-semibold={['credit', 'debit'].includes(header) &&
-								Number(record[header]) > 0}
+								Number(record[header] || 0) > 0}
 							class:text-lg={['credit', 'debit'].includes(header)}
-							class:text-red-500={header === 'debit' && Number(record[header]) > 0}
-							class:text-green-500={header === 'credit' && Number(record[header]) > 0}
+							class:text-red-500={header === 'debit' && Number(record[header] || 0) > 0}
+							class:text-green-500={header === 'credit' && Number(record[header] || 0) > 0}
 							class="text-center"
 						>
 							{['credit', 'debit'].includes(header)
-								? record[header].toLocaleString()
+								? (record[header] || 0).toLocaleString()
 								: record[header]}
 						</td>
 					{/each}
