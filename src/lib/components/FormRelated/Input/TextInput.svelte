@@ -87,7 +87,7 @@
 				{#each textSuggestion as option (option)}
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<div
-						class="p-2 cursor-pointer hover:bg-gray-100 flex items-center hover:bg-gray-300"
+						class="p-2 cursor-pointer flex items-center hover:bg-gray-300"
 						on:click={() => {
 							onSelectOptionClick(option);
 						}}

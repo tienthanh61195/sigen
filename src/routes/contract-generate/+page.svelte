@@ -51,6 +51,7 @@
 	import readDocFile from '$lib/utils/readDocFile';
 	import { isString, merge, uniq } from 'lodash';
 	import downloadObjectAsJson from '$lib/utils/downloadObjectAsJson';
+	import Icon from '$lib/components/Icon.svelte';
 	// import saveDocsFile from '$lib/utils/saveDocsFile';
 	// import { Document } from 'docx';
 	const onAddNewTemplateClick = () => {
@@ -172,6 +173,13 @@
 			return { ...c, data: { ...c.data, ...newDataProperty } };
 		});
 	};
+
+	$: onDeleteTemplateClick = (template: string) => {
+		contractExportStore.update((c) => {
+			delete c.templates[template];
+			return c;
+		});
+	};
 </script>
 
 <!-- <input type="file" on:change={previewFile} /><br /> -->
@@ -201,7 +209,7 @@
 		{#each contractTemplates as template}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div
-				class="border border-main-blue p-2 rounded w-auto"
+				class="border border-main-blue p-2 rounded w-auto flex items-center cursor-pointer"
 				on:click={() => {
 					onTemplateSelectClick(template.name);
 				}}
@@ -214,6 +222,15 @@
 						onTemplateSelectClick(template.name);
 					}}
 				/>
+				<button
+					class="ml-4 p-2 hover:opacity-70"
+					on:click={(e) => {
+						e.stopPropagation();
+						onDeleteTemplateClick(template.name);
+					}}
+				>
+					<Icon name="delete" class="text-md text-danger" />
+				</button>
 			</div>
 		{/each}
 	</div>
