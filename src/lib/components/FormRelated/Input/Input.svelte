@@ -28,6 +28,7 @@
 	export let name = '';
 	export let names = '';
 	export let label = '';
+	export let textSuggestion: string[] = [];
 	export let disabled = false;
 	export let labelPosition: LabelPositions = LabelPositions.TOP_OVERRIDE;
 	export let type: InputTypes = InputTypes.TEXT;
@@ -156,5 +157,6 @@
 		{optionComponent}
 		{uploadFileButtonLabel}
 		{disabled}
+		{textSuggestion}
 	/>
 </BaseInput>

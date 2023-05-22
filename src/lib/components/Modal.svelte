@@ -53,7 +53,7 @@
 			}}
 		>
 			{#if header !== null}
-				<div class="modal-header border-b border-input">
+				<div class="modal-header border-b border-input" class:invisible={!visible}>
 					{#if $$slots.header}
 						<slot name="header" />
 					{:else}
@@ -66,7 +66,7 @@
 					{/if}
 				</div>
 			{/if}
-			<div class="modal-content {contentClassName}">
+			<div class="modal-content {contentClassName}" class:invisible={!visible}>
 				<slot />
 			</div>
 		</div>

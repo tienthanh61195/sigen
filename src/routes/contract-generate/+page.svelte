@@ -97,7 +97,7 @@
 				const dynamicData = getDynamicDataFields(doc.getFullText());
 				const dynamicDataAsObject =
 					dynamicData.reduce((acc, d) => {
-						acc[d] = '';
+						acc[d] = [];
 						return acc;
 					}, {} as any) || {};
 				contractExportStore.update((c) => ({
@@ -157,12 +157,19 @@
 		}
 	};
 
-	$: onGenerateContractFormSubmitClick = (d: Record<string, any>) => {
+	$: onGenerateContractFormSubmitClick = (formData: Record<string, any>) => {
 		selectedTemplates.forEach((template) => {
 			const templateContent = $contractExportStore.templates[template].content;
 			const { doc, saveDocFile } = readDocFile(templateContent);
-			doc.render(d);
+			doc.render(formData);
 			saveDocFile(doc, template);
+		});
+		contractExportStore.update((c) => {
+			const newDataProperty = Object.entries(c.data).reduce((acc, [k, v]) => {
+				if (formData[k]) acc[k] = uniq(v.concat(formData[k]));
+				return acc;
+			}, {});
+			return { ...c, data: { ...c.data, ...newDataProperty } };
 		});
 	};
 </script>
@@ -245,13 +252,14 @@
 			<Form onSubmit={onGenerateContractFormSubmitClick}>
 				{#each selectedTemplatesData as templateData}
 					<Input
+						textSuggestion={$contractExportStore.data[templateData]}
 						inputContainerClasName="mb-4"
 						labelPosition={LabelPositions.TOP}
 						label="{templateData} [{getTemplateNameByDataName(templateData)}]"
 						name={templateData}
 					/>
 				{/each}
-				<Button buttonType={ButtonTypes.PRIMARY} type="submit">Submit</Button>
+				<Button buttonType={ButtonTypes.PRIMARY} type="submit">Generate Contract</Button>
 			</Form>
 		{/if}
 	</div>
