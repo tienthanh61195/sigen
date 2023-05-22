@@ -1,4 +1,4 @@
-enum LABEL_POSITIONS {
+enum LabelPositions {
 	TOP = 'TOP',
 	LEFT = 'LEFT',
 	RIGHT = 'RIGHT',
@@ -7,5 +7,4 @@ enum LABEL_POSITIONS {
 	TOP_OVERRIDE = 'TOP_OVERRIDE'
 }
 
-export default LABEL_POSITIONS;
-
+export default LabelPositions;

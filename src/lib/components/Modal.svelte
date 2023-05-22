@@ -16,18 +16,16 @@
 	export let contentClassName = '';
 	export let destroyOnClose = false;
 
-	$: visibleState = visible;
 	const dispatch = createEventDispatcher();
-	$: onCloseModal =
-		visibleState && outClickToClose
-			? () => {
-					visibleState = false;
-					dispatch('close');
-			  }
-			: undefined;
+	$: onCloseModal = visible
+		? () => {
+				visible = false;
+				dispatch('close');
+		  }
+		: undefined;
 
 	$: onKeyEscPressHandler = (e: KeyboardEvent) => {
-		if (e.key === 'Escape' && visibleState) {
+		if (e.key === 'Escape' && visible) {
 			onCloseModal?.();
 		}
 	};
@@ -40,15 +38,19 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<Backdrop {backdropVisible} {destroyOnClose} visible={visibleState}>
+<Backdrop {backdropVisible} {destroyOnClose} {visible}>
 	<div
 		class="absolute top-0 left-0 flex justify-center items-center h-screen w-screen bg-opacity-50"
-		class:bg-gray-500={backdropVisible && visibleState}
+		class:bg-gray-500={backdropVisible && visible}
 	>
 		<div
-			class="modal {visibleState ? 'scale-100' : 'scale-0'}  {containerClassName}"
+			class="modal {visible ? 'scale-100' : 'scale-0'}  {containerClassName}"
 			use:clickOutsideElement
-			on:outclick={onCloseModal}
+			on:outclick={() => {
+				if (outClickToClose) {
+					onCloseModal?.();
+				}
+			}}
 		>
 			{#if header !== null}
 				<div class="modal-header border-b border-input">
@@ -56,7 +58,7 @@
 						<slot name="header" />
 					{:else}
 						<div class="flex justify-between items-center">
-							<div class="p-6 leading-[0.9]">{header}</div>
+							<div class="p-4 leading-[0.9]">{header}</div>
 							<!-- <div class="p-5 cursor-pointer" on:click={onCloseModal}>
 								<Icon class="text-placeholder text-sm" name="close" />
 							</div> -->
@@ -73,7 +75,10 @@
 
 <style lang="scss">
 	.modal {
-		@apply bg-white transition-transform duration-100;
+		@apply flex flex-col max-h-[80%] overflow-hidden bg-white transition-transform duration-100;
 		@apply rounded-default;
+	}
+	.modal-content {
+		@apply overflow-auto;
 	}
 </style>

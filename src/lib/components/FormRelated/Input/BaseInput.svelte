@@ -11,20 +11,38 @@
 </script>
 
 <script lang="ts">
-	import LABEL_POSITIONS from '$lib/constants/labelPositions';
+	import LabelPositions from '$lib/constants/labelPositions';
 	import { onMount, setContext } from 'svelte';
 	import { commonInputSpacing } from './Input.svelte';
+	import InputTypes from '$lib/constants/inputTypes';
+	import { every } from 'lodash';
 	export let disabled = false;
 	export let id: string | undefined = undefined;
 	export let label: string | undefined = undefined;
 	export let value: any;
-	export let labelPosition: LABEL_POSITIONS;
+	export let labelPosition: LabelPositions;
+
 	export let labelClassName: string | undefined = '';
 	export let inputClassName: string | undefined = '';
 	export let error: string | undefined = '';
 	export let isTouched = false;
+	export let type: InputTypes = InputTypes.TEXT;
 	// Change <div> container's classnames based on the position set for different label position to style for those positions
 	export let inputContainerClasName: string | undefined = '';
+	let finalLabelPosition: LabelPositions;
+	$: {
+		const labelPositionsByType = {
+			[InputTypes.CHECKBOX]: [LabelPositions.RIGHT, LabelPositions.LEFT]
+		};
+		const isLabelPositionWrong = labelPositionsByType[
+			type as keyof typeof labelPositionsByType
+		]?.every((labelPos) => labelPos !== labelPosition);
+		if (isLabelPositionWrong) {
+			finalLabelPosition = labelPositionsByType[type as keyof typeof labelPositionsByType][0];
+		} else {
+			finalLabelPosition = labelPosition;
+		}
+	}
 	let originInputContainerClasName = '';
 
 	let isInputFocused = false;
@@ -38,23 +56,23 @@
 	});
 
 	$: {
-		switch (labelPosition) {
-			case LABEL_POSITIONS.TOP:
+		switch (finalLabelPosition) {
+			case LabelPositions.TOP:
 				originInputContainerClasName = 'has-label-top';
 				break;
-			case LABEL_POSITIONS.BOTTOM:
+			case LabelPositions.BOTTOM:
 				originInputContainerClasName = 'has-label-bottom';
 				break;
-			case LABEL_POSITIONS.LEFT:
+			case LabelPositions.LEFT:
 				originInputContainerClasName = 'has-label-left';
 				break;
-			case LABEL_POSITIONS.RIGHT:
+			case LabelPositions.RIGHT:
 				originInputContainerClasName = 'has-label-right';
 				break;
-			case LABEL_POSITIONS.INNER:
+			case LabelPositions.INNER:
 				originInputContainerClasName = 'has-label-inner';
 				break;
-			case LABEL_POSITIONS.TOP_OVERRIDE:
+			case LabelPositions.TOP_OVERRIDE:
 				originInputContainerClasName = 'has-label-top-override';
 				break;
 			default:
@@ -79,6 +97,8 @@
 			break;
 		}
 	});
+
+	const noBorderInputTypes = [InputTypes.FILE, InputTypes.CHECKBOX];
 </script>
 
 <div class={`${inputContainerClasName} input-outer-container`}>
@@ -88,10 +108,10 @@
 		class:focus-within={isInputFocused}
 		class:disabled
 	>
-		<div class={`input ${inputClassName}`}>
-			<div class="input-border-placeholder" />
+		<div class="input {inputClassName}">
+			<div class="input-border-placeholder" class:hidden={noBorderInputTypes.includes(type)} />
 			<div
-				class:hidden={!isTouched || !error}
+				class:hidden={!isTouched || !error || noBorderInputTypes.includes(type)}
 				class="input-error-border-placeholder"
 				data-input-invalid={!!error}
 			/>
@@ -109,9 +129,17 @@
 <style lang="scss">
 	.input-outer-container {
 		.input-container {
-			& > :global(*) {
-				width: 100%;
+			&.has-label-top,
+			&.has-label-bottom {
+				& label {
+					margin-bottom: 5px;
+					font-weight: 500;
+				}
+				> :global(*) {
+					width: 100%;
+				}
 			}
+
 			& :global(input:-webkit-autofill) {
 				-webkit-box-shadow: 0 0 0 50px white inset;
 				/* Change the color to your own background color */

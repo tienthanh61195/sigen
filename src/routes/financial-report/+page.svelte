@@ -34,9 +34,6 @@
 	};
 </script>
 
-<svelte:head>
-	<title>Phân Loại Tài Chính</title>
-</svelte:head>
 <div class="max-h-full h-full overflow-auto p-4 flex flex-col">
 	<div>
 		<input type="file" on:change={onFileAdd} multiple />

@@ -33,6 +33,12 @@
 			const inputName = e.getAttribute('name');
 			if (inputName) submittedValues[inputName] = JSON.parse(submittedValues[inputName] as string);
 		});
+		formElement.querySelectorAll('[data-as-file="true"]').forEach((e) => {
+			const inputName = e.getAttribute('name');
+			if (inputName) {
+				submittedValues[inputName] = e.files;
+			}
+		});
 		onSubmit(submittedValues);
 	};
 </script>

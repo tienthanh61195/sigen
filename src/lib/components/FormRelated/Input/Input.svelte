@@ -15,10 +15,11 @@
 	import SelectInput from './SelectInput.svelte';
 	import TextInput from './TextInput.svelte';
 	import type { ZodTypeAny } from 'zod/lib/types';
-	import LABEL_POSITIONS from '$lib/constants/labelPositions';
+	import LabelPositions from '$lib/constants/labelPositions';
 	import type { InputComponentChangeHandler, InputOption } from '$lib/types/input-component';
 	import TextArea from './TextArea.svelte';
 	import type { GeneralFunction } from '$lib/types/common';
+	import FileInput from './FileInput.svelte';
 
 	export let value: any = undefined;
 	export let inputClassName: string | undefined = '';
@@ -28,7 +29,7 @@
 	export let names = '';
 	export let label = '';
 	export let disabled = false;
-	export let labelPosition: LABEL_POSITIONS = LABEL_POSITIONS.TOP_OVERRIDE;
+	export let labelPosition: LabelPositions = LabelPositions.TOP_OVERRIDE;
 	export let type: InputTypes = InputTypes.TEXT;
 	export let onChange: InputComponentChangeHandler | undefined = undefined;
 	export let options: InputOption[] = [];
@@ -97,6 +98,9 @@
 			case InputTypes.TEXTAREA:
 				component = TextArea;
 				break;
+			case InputTypes.FILE:
+				component = FileInput;
+				break;
 			default:
 				break;
 		}
@@ -113,8 +117,8 @@
 	}
 	const inputTypesWithoutLabelOverride = [InputTypes.CHECKBOX, InputTypes.RADIO];
 	const finalLabelPosition =
-		labelPosition === LABEL_POSITIONS.TOP_OVERRIDE && inputTypesWithoutLabelOverride.includes(type)
-			? LABEL_POSITIONS.LEFT
+		labelPosition === LabelPositions.TOP_OVERRIDE && inputTypesWithoutLabelOverride.includes(type)
+			? LabelPositions.LEFT
 			: labelPosition;
 </script>
 
@@ -122,12 +126,13 @@
 	{inputContainerClasName}
 	{inputClassName}
 	{labelClassName}
+	{type}
 	value={innerValue}
 	{label}
 	{isTouched}
 	{...$$restProps}
 	{error}
-	labelPosition={finalLabelPosition}
+	{labelPosition}
 	{disabled}
 >
 	<svelte:component

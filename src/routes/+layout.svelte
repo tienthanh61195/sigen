@@ -4,19 +4,29 @@
 	import ssvLogo from '$lib/images/ssv-logo.png';
 	import { base } from '$app/paths';
 	import '../app.css';
-	const menuNavigations = [{ label: 'Phân Loại Tài Chính', route: `${base}/financial-report` }];
+	import { page } from '$app/stores';
+	const menuNavigations = [
+		{ label: 'Phân Loại Tài Chính', route: `${base}/financial-report` },
+		{ label: 'Xuất Giấy Tờ', route: `${base}/contract-generate` }
+	];
 	const onNavigationClick = (route: string) => {
 		goto(route);
 	};
+	$: header =
+		menuNavigations.find(({ route }) => route.includes($page.url.pathname))?.label ||
+		'Survival Skill Vietnam';
 </script>
 
+<svelte:head>
+	<title>{header}</title>
+</svelte:head>
 <div class="main">
 	<div class="main__header">
-		<div class="flex text-2xl p-3 flex-row h-full items-center border-r border-r-white">
+		<div class="flex text-lg p-3 flex-row h-full items-center border-r border-r-white">
 			<img src={ssvLogo} />
 			<div class="ml-2">Survival Skills Vietnam</div>
 		</div>
-		<div class="flex text-xl flex-1 self-stretch">
+		<div class="flex text-lg flex-1 self-stretch gap-10">
 			{#each menuNavigations as menuNavigation (menuNavigation.label)}
 				<div
 					on:click={() => {
@@ -39,7 +49,7 @@
 	.main {
 		@apply w-screen h-screen overflow-hidden flex flex-col;
 		& .main__header {
-			@apply h-20 flex overflow-hidden items-center bg-gradient-to-r from-blue-600 to-blue-500 text-white;
+			@apply h-14 flex overflow-hidden items-center bg-gradient-to-r from-blue-600 to-blue-500 text-white;
 			& img {
 				height: 100%;
 				width: auto;

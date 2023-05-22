@@ -9,8 +9,8 @@ enum InputTypes {
 	'CHECKBOX' = 'CHECKBOX',
 	'RADIO' = 'RADIO',
 	'TEXTAREA' = 'TEXTAREA',
-	'DATE_TIME_RANGE_PICKER' = 'DATE_TIME_RANGE_PICKER'
-
+	'DATE_TIME_RANGE_PICKER' = 'DATE_TIME_RANGE_PICKER',
+	'FILE' = 'FILE'
 }
 
 export default InputTypes;
