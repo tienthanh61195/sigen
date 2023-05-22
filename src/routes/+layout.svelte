@@ -12,9 +12,8 @@
 	const onNavigationClick = (route: string) => {
 		goto(route);
 	};
-	$: header =
-		menuNavigations.find(({ route }) => route.includes($page.url.pathname))?.label ||
-		'Survival Skill Vietnam';
+	$: selectedRoute = menuNavigations.find(({ route }) => route.includes($page.url.pathname));
+	$: header = selectedRoute?.label || 'Survival Skill Vietnam';
 </script>
 
 <svelte:head>
@@ -26,13 +25,17 @@
 			<img src={ssvLogo} />
 			<div class="ml-2">Survival Skills Vietnam</div>
 		</div>
-		<div class="flex text-lg flex-1 self-stretch gap-10">
+		<div class="flex text-lg flex-1 self-stretch gap-10 ml-2">
 			{#each menuNavigations as menuNavigation (menuNavigation.label)}
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<div
 					on:click={() => {
 						onNavigationClick(menuNavigation.route);
 					}}
-					class="cursor-pointer hover:opacity-80 items-center flex p-2"
+					class="cursor-pointer hover:opacity-80 items-center flex p-2 {selectedRoute?.label ===
+					menuNavigation.label
+						? 'text-[#E88F1A] font-semibold'
+						: ''}"
 				>
 					{menuNavigation.label}
 				</div>
