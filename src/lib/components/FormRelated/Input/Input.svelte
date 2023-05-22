@@ -39,7 +39,7 @@
 	export let maxDateTime: string | undefined = undefined;
 	export let onAddNewOption: GeneralFunction | undefined = undefined;
 	export let onRemoveOption: GeneralFunction | undefined = undefined;
-
+	export let uploadFileButtonLabel: string | undefined = '';
 	// ------------ USE ZOD FOR VALIDATION ----------------
 	export let validation: ZodTypeAny | undefined = undefined;
 	export let optionComponent:
@@ -154,6 +154,7 @@
 		onChange={onInputChange}
 		class={inputClassName}
 		{optionComponent}
+		{uploadFileButtonLabel}
 		{disabled}
 	/>
 </BaseInput>

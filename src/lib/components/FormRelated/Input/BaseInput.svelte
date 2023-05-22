@@ -117,7 +117,12 @@
 			/>
 			<slot />
 		</div>
-		<div class="label !leading-[0.93]" bind:this={labelRef} style:--labelBgColor={labelBgColor}>
+		<div
+			class="label !leading-[0.93]"
+			bind:this={labelRef}
+			class:invisible={!label}
+			style:--labelBgColor={labelBgColor}
+		>
 			<label class={labelClassName} for={id}>{label}</label>
 		</div>
 	</div>

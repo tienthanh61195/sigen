@@ -49,7 +49,8 @@
 	import { ButtonTypes } from '$lib/constants/buttonTypes';
 	import { contractExportStore } from '$lib/stores';
 	import readDocFile from '$lib/utils/readDocFile';
-	import { uniq } from 'lodash';
+	import { isString, merge, uniq } from 'lodash';
+	import downloadObjectAsJson from '$lib/utils/downloadObjectAsJson';
 	// import saveDocsFile from '$lib/utils/saveDocsFile';
 	// import { Document } from 'docx';
 	const onAddNewTemplateClick = () => {
@@ -113,6 +114,20 @@
 	$: onGenerateContractClick = () => {
 		modalType = 'generate-contract';
 	};
+
+	$: onExportConfigurationClick = () => {
+		downloadObjectAsJson($contractExportStore, 'config');
+	};
+	const importConfiguration = (files: FileList) => {
+		reader.onload = () => {
+			if (isString(reader.result)) {
+				contractExportStore.update((c) => {
+					return merge(c, JSON.parse(reader.result as string));
+				});
+			}
+		};
+		reader.readAsText(files[0]);
+	};
 	let templateJustAdded = false;
 	$: {
 		if (templateJustAdded) {
@@ -165,6 +180,14 @@
 		>
 			Generate Contracts
 		</Button>
+		<Button buttonType={ButtonTypes.BORDER} on:click={onExportConfigurationClick}>
+			Export Configuration
+		</Button>
+		<Input
+			type={InputTypes.FILE}
+			onChange={importConfiguration}
+			uploadFileButtonLabel="Import Configuration"
+		/>
 	</div>
 
 	<div class="mt-6 flex flex-nowrap gap-10">
