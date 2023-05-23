@@ -10,3 +10,8 @@ export const contractExportStore = persistStore('contractExport', {
 	data: {},
 	links: {}
 });
+
+export const financeReportStore = persistStore<{ credit: any[]; debit: any[] }>('financeReport', {
+	credit: [],
+	debit: []
+});

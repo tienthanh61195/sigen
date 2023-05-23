@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { defaultBankOptions, getBankOptionSuggestion } from '$lib/constants/banks';
 	import InputTypes from '$lib/constants/inputTypes';
+	import { financeReportStore } from '$lib/stores';
 	import Input from '../FormRelated/Input/Input.svelte';
 	export let propertiesIndex = 0;
 	export let record: Record<string, any>;
@@ -57,7 +58,7 @@
 				traverseOptions.push({ value: opt.value, label: opt.value });
 				optionsCredit = optionsCredit;
 			}
-			localStorage.credit = JSON.stringify(optionsCredit);
+			financeReportStore.update((c) => ({ ...c, credit: optionsCredit }));
 		} else {
 			if (propertiesIndex === 0) {
 				optionsDebit = optionsDebit.concat(opt);
@@ -66,7 +67,7 @@
 				traverseOptions.push({ value: opt.value, label: opt.value });
 				optionsDebit = optionsDebit;
 			}
-			localStorage.debit = JSON.stringify(optionsDebit);
+			financeReportStore.update((c) => ({ ...c, debit: optionsDebit }));
 		}
 	};
 	$: inputValue = record[property];
@@ -74,6 +75,10 @@
 	$: {
 		inputOptions = getTraverseOptions(isCredit ? optionsCredit : optionsDebit);
 	}
+
+	// $: {
+	// 	if (propertiesIndex > 0) console.log(inputOptions, optionsCredit);
+	// }
 	$: onRemoveOption = (removedOpt) => {
 		inputOptions = inputOptions.filter(
 			({ value, label }) => value !== removedOpt.value && label !== removedOpt.label
@@ -97,7 +102,6 @@
 	}}
 	value={inputValue}
 	{onAddNewOption}
-	{onRemoveOption}
 	options={inputOptions}
 	type={InputTypes.SELECT}
 	name={property}

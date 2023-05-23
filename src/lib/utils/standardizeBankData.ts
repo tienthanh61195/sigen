@@ -209,11 +209,9 @@ const standardizeBankData = async (file: Blob | File) => {
 				// acc = acc.slice(0, i).concat(acc.slice(i));
 				acc.splice(i, 1);
 			}
-
 			return acc;
 		}, []) || []
 	);
-	console.log(standardizedRecords);
 
 	return { bankRecords, bankType, bankHeaders, standardizedRecords };
 };

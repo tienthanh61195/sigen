@@ -308,13 +308,15 @@
 						{#if flatten([value])?.includes(option.value)}
 							<Icon name="check" class="text-base ml-2 text-main-blue" />
 						{/if}
-						<Icon
-							on:click={() => {
-								onRemoveOption?.(option);
-							}}
-							name="close"
-							class="text-base ml-auto text-btn-cancel"
-						/>
+						{#if onRemoveOption}
+							<Icon
+								on:click={() => {
+									onRemoveOption?.(option);
+								}}
+								name="close"
+								class="text-base ml-auto text-btn-cancel"
+							/>
+						{/if}
 					</div>
 				{/each}
 			{/if}
