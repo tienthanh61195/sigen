@@ -29,7 +29,7 @@
 		(k) => ![...extraColumns, ...extraProperties].includes(k)
 	) || []) as (keyof typeof $messagesStore.bankSchema)[];
 
-	let extraColumns: string[] = ['Notes'];
+	let extraColumns: string[] = ['Notes', 'Invoice Number', 'Deal Link'];
 	let extraProperties: string[] = ['extra-property-1', 'extra-property-2'];
 
 	$: onAddExtraRowClick = () => {
@@ -97,6 +97,7 @@
 			[],
 			[
 				'',
+				commonStyle({ v: 'Source' }),
 				commonStyle({ v: 'Date' }),
 				commonStyle({ v: 'Amount' }),
 				...extraColumns.map((col) => commonStyle({ v: col })),
@@ -188,6 +189,7 @@
 			titleStyle('INFLOWS', 'left'),
 			titleStyle(''),
 			titleStyle(''),
+			titleStyle(''),
 			...extraColumns.map(() => titleStyle('', 'center')),
 			titleStyle(inflowsTotal, 'center')
 		]);
@@ -204,6 +206,7 @@
 						commonTitleStyle(`${indexString}.${romanizedSectionNumber}. ${extraProperty}`, 'left'),
 						'',
 						'',
+						'',
 						...extraColumns.map(() => commonTitleStyle('', 'center')),
 						commonTitleStyle(total, 'center')
 					]);
@@ -213,6 +216,7 @@
 					data.forEach((d) => {
 						worksheetData.push([
 							d.transactionContent,
+							commonStyle({ v: d.bankType, alignment: 'center' }),
 							commonStyle({ v: d.transactionDateTime, alignment: 'center' }),
 							commonStyle({ v: isCredit ? d.credit : d.debit, alignment: 'left' }),
 							...extraColumns.map((col) => ({ v: d[col], alignment: 'left' }))
@@ -229,6 +233,7 @@
 					commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
 					'',
 					'',
+					'',
 					...extraColumns.map(() => commonTitleStyle('', 'center', '52c41a')),
 					commonTitleStyle(total, 'center', '52c41a')
 				]);
@@ -239,6 +244,7 @@
 					data.forEach((d) => {
 						worksheetData.push([
 							d.transactionContent,
+							commonStyle({ v: d.bankType, alignment: 'center' }),
 							commonStyle({ v: d.transactionDateTime, alignment: 'center' }),
 							d.credit,
 							...extraColumns.map((col) => d[col])
@@ -250,6 +256,7 @@
 		// Expense section
 		worksheetData.push([
 			titleStyle('OUTFLOWS', 'left'),
+			titleStyle(''),
 			titleStyle(''),
 			titleStyle(''),
 			...extraColumns.map(() => titleStyle('')),
@@ -267,6 +274,7 @@
 				titleStyle('GROSS PROFIT', 'left', '385d7e'),
 				titleStyle('', 'center', '385d7e'),
 				titleStyle('', 'center', '385d7e'),
+				titleStyle('', 'center', '385d7e'),
 				...extraColumns.map(() => titleStyle('', 'center', '385d7e')),
 				titleStyle(inflowsTotal - outflows['Cost of goods sold'].total, 'center', '385d7e')
 			],
@@ -281,6 +289,7 @@
 						commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
 						'',
 						'',
+						'',
 						...extraColumns.map(() => commonTitleStyle('', 'center', '52c41a')),
 						commonTitleStyle(total, 'center', '52c41a')
 					]);
@@ -290,6 +299,7 @@
 						data.forEach((d) => {
 							worksheetData.push([
 								d.transactionContent,
+								d.bankType,
 								d.transactionDateTime,
 								d.debit,
 								...extraColumns.map((col) => d[col])
@@ -309,6 +319,7 @@
 					commonTitleStyle(`${romanizedSectionNumber}. ${extraProperty}`, 'left', '52c41a'),
 					'',
 					'',
+					'',
 					...extraColumns.map(() => commonTitleStyle('', 'center', '52c41a')),
 					commonTitleStyle(total, 'center', '52c41a')
 				]);
@@ -318,6 +329,7 @@
 					data.forEach((d) => {
 						worksheetData.push([
 							d.transactionContent,
+							d.bankType,
 							d.transactionDateTime,
 							d.debit,
 							...extraColumns.map((col) => d[col])
@@ -327,13 +339,15 @@
 			}
 		});
 		// const isLoss = inflowsTotal - outflowsTotal < 0;
-		worksheetData.push([
+		const netProfitSection = [
 			titleStyle('NET PROFIT', 'left', '385d7e'),
+			titleStyle('', 'center', '385d7e'),
 			titleStyle('', 'center', '385d7e'),
 			titleStyle('', 'center', '385d7e'),
 			...extraColumns.map(() => titleStyle('', 'center', '385d7e')),
 			titleStyle(inflowsTotal - outflowsTotal, 'center', '385d7e')
-		]);
+		];
+		worksheetData.push(netProfitSection);
 
 		const wb = xlsx.utils.book_new();
 		const ws = xlsx.utils.aoa_to_sheet(worksheetData);
@@ -360,11 +374,12 @@
 		// // 	origin: -1
 		// // });
 		// // Package and Release Data (`writeFile` tries to write and save an XLSB file)
-		const totalCols = 4 + extraColumns.length;
+		const totalCols = netProfitSection.length;
 		const wscols = [
 			{ wch: 70 },
-			{ wch: 18 },
-			...Array(totalCols - 2)
+			{ wch: 12 },
+			{ wch: 22 },
+			...Array(totalCols - 3)
 				.fill('')
 				.map(() => ({ wch: 14 }))
 		];
@@ -481,7 +496,7 @@
 					{#each extraColumns as extraColumn, extraColumnsIndex (extraColumn)}
 						<td class="w-auto items-center">
 							<Input
-								type={InputTypes.TEXTAREA}
+								type={InputTypes.TEXT}
 								onChange={(v) => {
 									standardizedRecords[recordIndex][extraColumn] = v;
 									standardizedRecords = standardizedRecords;
@@ -568,6 +583,14 @@
 <style lang="scss">
 	.bank-table {
 		@apply border-collapse overflow-auto;
+		& th {
+			position: sticky;
+			top: 0;
+			left: 0;
+			background-color: lightgray;
+
+			z-index: 99;
+		}
 		& th,
 		td {
 			@apply border border-black p-1 h-20;

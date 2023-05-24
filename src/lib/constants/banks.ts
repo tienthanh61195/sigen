@@ -127,7 +127,8 @@ const defaultBankReportGroupOptions = {
 			'First aid kit',
 			'E-learning'
 		],
-		'Fixed expenses': ['Salary & Staff Benefit', 'Office', 'Marketing', 'Transport', 'Others']
+		'Fixed expenses': ['Salary & Staff Benefit', 'Office', 'Marketing', 'Transport', 'Others'],
+		'Others': []
 	}
 };
 export const defaultBankOptions = {
