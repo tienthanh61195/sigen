@@ -360,7 +360,15 @@
 		// // 	origin: -1
 		// // });
 		// // Package and Release Data (`writeFile` tries to write and save an XLSB file)
-		const wscols = [{ wch: 50 }, { wch: 22 }, { wch: 15 }, { wch: 15 }];
+		const totalCols = 4 + extraColumns.length;
+		const wscols = [
+			{ wch: 70 },
+			{ wch: 18 },
+			...Array(totalCols - 2)
+				.fill('')
+				.map(() => ({ wch: 14 }))
+		];
+
 		const wsrows = [{ hpx: 20 }];
 		const merge = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
 		ws['!merges'] = merge;
@@ -391,9 +399,9 @@
 		debit: 9
 	};
 	let bankTableContainerRef: any;
-	$: {
-		console.log(standardizedRecords);
-	}
+	// $: {
+	// 	console.log(standardizedRecords);
+	// }
 </script>
 
 <div class="h-full w-full flex flex-col">
