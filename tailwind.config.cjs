@@ -2,7 +2,7 @@ module.exports = {
 	theme: {
 		extend: {
 			borderColor: {
-				input: '#dddddd',
+				input: '#999999',
 				'input-focus': '#385d7e'
 			},
 			fontSize: {

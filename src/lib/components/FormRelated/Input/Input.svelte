@@ -41,6 +41,7 @@
 	export let onAddNewOption: GeneralFunction | undefined = undefined;
 	export let onRemoveOption: GeneralFunction | undefined = undefined;
 	export let uploadFileButtonLabel: string | undefined = '';
+	export let uploadFileButtonClassName: string | undefined = '';
 	// ------------ USE ZOD FOR VALIDATION ----------------
 	export let validation: ZodTypeAny | undefined = undefined;
 	export let optionComponent:
@@ -158,5 +159,6 @@
 		{uploadFileButtonLabel}
 		{disabled}
 		{textSuggestion}
+		{uploadFileButtonClassName}
 	/>
 </BaseInput>

@@ -15,6 +15,7 @@
 	export let onChange: InputComponentChangeHandler | undefined = undefined;
 	export let name = '';
 	export let uploadFileButtonLabel: string | undefined = '';
+	export let uploadFileButtonClassName = '';
 	const onInputChange: InputChangeEventHandler = (e) => {
 		value = e.currentTarget.files;
 		onChange?.(e.currentTarget.files, e);
@@ -41,8 +42,11 @@
 	style="display: none"
 />
 <div class="w-full">
-	<Button type="button" class="w-full" buttonType={ButtonTypes.CANCEL} on:click={onBrowse}
-		>{uploadFileButtonLabel || 'Browse...'}</Button
+	<Button
+		type="button"
+		class="w-full {uploadFileButtonClassName}"
+		buttonType={ButtonTypes.CANCEL}
+		on:click={onBrowse}>{uploadFileButtonLabel || 'Browse...'}</Button
 	>
 	{#if value?.length}
 		<div>

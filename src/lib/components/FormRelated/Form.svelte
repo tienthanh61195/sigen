@@ -7,7 +7,7 @@
 
 	import { setContext } from 'svelte';
 
-	export let onSubmit: (param: Record<string, any>) => void;
+	export let onSubmit: (param: { [key in string]: any }) => void;
 
 	setContext(contextKey, {
 		touchAllInputs: (func: GeneralFunction) => {
@@ -28,7 +28,7 @@
 			});
 			return;
 		}
-		const submittedValues = Object.fromEntries(data.entries());
+		const submittedValues: { [key in string]: any } = Object.fromEntries(data.entries());
 		formElement.querySelectorAll('[data-as-array="true"]').forEach((e) => {
 			const inputName = e.getAttribute('name');
 			if (inputName) submittedValues[inputName] = JSON.parse(submittedValues[inputName] as string);
@@ -37,6 +37,12 @@
 			const inputName = e.getAttribute('name');
 			if (inputName) {
 				submittedValues[inputName] = e.files;
+			}
+		});
+		formElement.querySelectorAll('[data-value]').forEach((e) => {
+			const inputName = e.getAttribute('name');
+			if (inputName) {
+				submittedValues[inputName] = e.getAttribute('data-value');
 			}
 		});
 		onSubmit(submittedValues);

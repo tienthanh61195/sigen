@@ -11,9 +11,6 @@
 
 	// type $$Props = InputPropsForInputComponents;
 	export let textSuggestion: string[] = [];
-	$: {
-		console.log(textSuggestion);
-	}
 	export let value: string | undefined = undefined;
 	export let label: string | undefined = '';
 	let className: string | undefined = undefined;

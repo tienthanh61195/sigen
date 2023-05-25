@@ -6,9 +6,9 @@ export const langMessageStore = writable<keyof typeof messages>('en');
 export const messagesStore = derived(langMessageStore, ($lang) => messages[$lang]);
 
 export const contractExportStore = persistStore('contractExport', {
-	templates: {},
-	data: {},
-	links: {}
+	templates: {} as Record<string, any>,
+	data: {} as Record<string, any>,
+	links: {} as Record<string, any>
 });
 
 export const financeReportStore = persistStore<{ credit: any[]; debit: any[] }>('financeReport', {

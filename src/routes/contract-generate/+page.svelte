@@ -49,30 +49,25 @@
 	import { ButtonTypes } from '$lib/constants/buttonTypes';
 	import { contractExportStore } from '$lib/stores';
 	import readDocFile from '$lib/utils/readDocFile';
-	import { isString, merge, uniq } from 'lodash';
+	import { isString, keys, merge, uniq } from 'lodash';
 	import downloadObjectAsJson from '$lib/utils/downloadObjectAsJson';
 	import Icon from '$lib/components/Icon.svelte';
+	import getOptionLinkingFromExcel from '$lib/utils/getDataFromExcel';
+	import DynamicDataInputForSelectInput from '$lib/components/ContractExportPage/DynamicDataInputForSelectInput.svelte';
 	// import saveDocsFile from '$lib/utils/saveDocsFile';
 	// import { Document } from 'docx';
 	const onAddNewTemplateClick = () => {
 		modalType = 'add-template';
 	};
+	let mainSelectValue = '';
+	$: mainOptionName = Object.keys($contractExportStore.links)[0];
+
 	let selectedTemplates: string[] = [];
 	$: selectedTemplatesData = uniq(
 		selectedTemplates.reduce((acc, template) => {
 			return acc.concat(...$contractExportStore.templates[template].data);
 		}, []) || []
 	);
-	$: getTemplateNameByDataName = (data: string) => {
-		return Object.entries($contractExportStore.templates)
-			.reduce((acc, [templateName, template]) => {
-				if (template.data.includes(data)) {
-					acc.push(templateName);
-				}
-				return acc;
-			}, [])
-			.join(', ');
-	};
 	// function previewFile(e) {
 	// 	const file: any = e.target.files[0];
 
@@ -119,6 +114,7 @@
 	$: onExportConfigurationClick = () => {
 		downloadObjectAsJson($contractExportStore, 'config');
 	};
+
 	const importConfiguration = (files: FileList) => {
 		reader.onload = () => {
 			if (isString(reader.result)) {
@@ -129,6 +125,14 @@
 		};
 		reader.readAsText(files[0]);
 	};
+
+	const importLinkTemplate = async (files: FileList) => {
+		const result = await getOptionLinkingFromExcel(files[0]);
+		contractExportStore.update((c) => {
+			return { ...c, links: result };
+		});
+	};
+
 	let templateJustAdded = false;
 	$: {
 		if (templateJustAdded) {
@@ -169,7 +173,7 @@
 			const newDataProperty = Object.entries(c.data).reduce((acc, [k, v]) => {
 				if (formData[k]) acc[k] = uniq(v.concat(formData[k]));
 				return acc;
-			}, {});
+			}, {} as { [key in string]: any });
 			return { ...c, data: { ...c.data, ...newDataProperty } };
 		});
 	};
@@ -188,6 +192,12 @@
 		<Button buttonType={ButtonTypes.PRIMARY} on:click={onAddNewTemplateClick}>
 			Add New Template
 		</Button>
+		<Input
+			type={InputTypes.FILE}
+			onChange={importLinkTemplate}
+			uploadFileButtonLabel="Add Link Template"
+			uploadFileButtonClassName="bg-btn-secondary text-blue-900"
+		/>
 		<Button
 			disabled={!selectedTemplates.length}
 			buttonType={selectedTemplates.length ? ButtonTypes.SECONDARY : ButtonTypes.DISABLED}
@@ -268,13 +278,7 @@
 		{:else if modalType === 'generate-contract'}
 			<Form onSubmit={onGenerateContractFormSubmitClick}>
 				{#each selectedTemplatesData as templateData}
-					<Input
-						textSuggestion={$contractExportStore.data[templateData]}
-						inputContainerClasName="mb-4"
-						labelPosition={LabelPositions.TOP}
-						label="{templateData} [{getTemplateNameByDataName(templateData)}]"
-						name={templateData}
-					/>
+					<DynamicDataInputForSelectInput bind:mainSelectValue {templateData} />
 				{/each}
 				<Button buttonType={ButtonTypes.PRIMARY} type="submit">Generate Contract</Button>
 			</Form>

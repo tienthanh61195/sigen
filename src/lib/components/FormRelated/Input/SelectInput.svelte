@@ -181,8 +181,10 @@
 >
 	<div class="w-full flex" bind:this={selectContainerRef}>
 		<input
+			autocomplete="off"
 			{disabled}
 			{...inputProps}
+			data-value={value}
 			on:click={onSelectInputClick}
 			on:input={onSelectInputChange}
 		/>
@@ -190,6 +192,7 @@
 			{#if allowAddMore}
 				<div class={divClassname}>
 					<input
+						autocomplete="off"
 						{disabled}
 						on:focus={onInputFocus}
 						on:keypress={(e) => {
@@ -253,6 +256,7 @@
 					{/each}
 				{/if}
 				<input
+					autocomplete="off"
 					{disabled}
 					on:focusout
 					on:focus
