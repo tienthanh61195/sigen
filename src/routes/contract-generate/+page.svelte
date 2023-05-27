@@ -3,7 +3,7 @@
 	import Docxtemplater from 'docxtemplater';
 	import { saveAs } from 'file-saver';
 
-	let reader = new FileReader();
+	// let reader = new FileReader();
 	// reader.addEventListener(
 	// 	'load',
 	// 	(e) => {
@@ -82,7 +82,6 @@
 		let isChanged = false;
 		const newFormValues = Object.entries(hardcodedLogic).reduce((acc, [property, calculate]) => {
 			const newCalculatedValue = calculate(generateContractFormInputValues);
-			console.log('caluc', newCalculatedValue);
 			if (newCalculatedValue) {
 				acc[property] = newCalculatedValue;
 				isChanged = true;
@@ -102,7 +101,9 @@
 	let selectedTemplates: string[] = [];
 	$: selectedTemplatesData = uniq(
 		selectedTemplates.reduce((acc, template) => {
-			return acc.concat(...$contractExportStore.templates[template].data);
+			if ($contractExportStore.templates[template].data)
+				return acc.concat(...$contractExportStore.templates[template].data);
+			return acc;
 		}, []) || []
 	);
 
@@ -121,28 +122,47 @@
 		});
 		return dynamicData;
 	};
-	const onSubmitAddTemplateForm = (d: { type: string; file: File[] }) => {
-		const { type, file } = d;
+	const onAddTemplateLinkFiles = (files: FileList) => {
+		console.log(files);
 		// contractExportStore.update(c => ({...c, templates: {...c.templates, [d.type]: {content: }}}))
-		reader.onload = (e) => {
-			const result = reader.result;
-			if (result) {
-				const { doc, saveDocFile } = readDocFile(result);
-				const dynamicData = getDynamicDataFields(doc.getFullText());
-				const dynamicDataAsObject =
-					dynamicData.reduce((acc, d) => {
-						acc[d] = [];
-						return acc;
-					}, {} as any) || {};
-				contractExportStore.update((c) => ({
-					...c,
-					templates: { ...c.templates, [d.type]: { content: result, data: dynamicData } },
-					data: { ...dynamicDataAsObject, ...c.data }
-				}));
-				templateJustAdded = true;
+		for (const i in files) {
+			const f = files[i];
+			if (typeof f !== 'object') continue;
+			const fileName = f.name;
+			const isDocFile = fileName.split('.').at(-1).includes('doc') ? true : false;
+			if (isDocFile) {
+				let reader = new FileReader();
+				// if is word doc file
+				reader.onload = (e) => {
+					const result = reader.result;
+					console.log(fileName);
+					if (result) {
+						const { doc } = readDocFile(result);
+						const dynamicData = getDynamicDataFields(doc.getFullText());
+						const dynamicDataAsObject =
+							dynamicData.reduce((acc, d) => {
+								acc[d] = [];
+								return acc;
+							}, {} as any) || {};
+						contractExportStore.update((c) => ({
+							...c,
+							templates: { ...c.templates, [fileName]: { content: result, data: dynamicData } },
+							data: { ...dynamicDataAsObject, ...c.data }
+						}));
+						templateJustAdded = true;
+					}
+				};
+				reader.readAsBinaryString(f);
+			} else {
+				// if is excel file
+				getOptionLinkingFromExcel(f).then((result) => {
+					contractExportStore.update((c) => {
+						return { ...c, links: result };
+					});
+				});
 			}
-		};
-		reader.readAsBinaryString(file[0]);
+		}
+		return;
 	};
 
 	$: onGenerateContractClick = () => {
@@ -158,6 +178,7 @@
 	};
 
 	const importConfiguration = (files: FileList) => {
+		let reader = new FileReader();
 		reader.onload = () => {
 			if (isString(reader.result)) {
 				contractExportStore.update((c) => {
@@ -234,15 +255,21 @@
 <!-- <input type="file" on:change={previewFile} /><br /> -->
 <div class="p-4">
 	<div class="flex gap-10">
-		<Button buttonType={ButtonTypes.PRIMARY} on:click={onAddNewTemplateClick}>
-			Add New Template
-		</Button>
+		<!-- <Button buttonType={ButtonTypes.PRIMARY} on:click={onAddNewTemplateClick} /> -->
 		<Input
+			type={InputTypes.FILE}
+			onChange={onAddTemplateLinkFiles}
+			uploadFileButtonLabel="Add Template/Link"
+			uploadFileButtonClassName="bg-main-blue text-white"
+			showFile={false}
+		/>
+		<!-- <Input
 			type={InputTypes.FILE}
 			onChange={importLinkTemplate}
 			uploadFileButtonLabel="Add Link Template"
 			uploadFileButtonClassName="bg-btn-secondary text-blue-900"
-		/>
+			showFile={false}
+		/> -->
 		<Button
 			disabled={!selectedTemplates.length}
 			buttonType={selectedTemplates.length ? ButtonTypes.SECONDARY : ButtonTypes.DISABLED}
@@ -312,7 +339,7 @@
 >
 	<div class="p-6">
 		{#if modalType === 'add-template'}
-			<Form onSubmit={onSubmitAddTemplateForm}>
+			<Form onSubmit={onAddTemplateLinkFiles}>
 				<div class="mb-6">
 					<Input name="type" label="Contract Type" labelPosition={LabelPositions.TOP} />
 				</div>

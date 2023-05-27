@@ -16,6 +16,7 @@
 	export let name = '';
 	export let uploadFileButtonLabel: string | undefined = '';
 	export let uploadFileButtonClassName = '';
+	export let showFile = true;
 	const onInputChange: InputChangeEventHandler = (e) => {
 		value = e.currentTarget.files;
 		onChange?.(e.currentTarget.files, e);
@@ -48,7 +49,7 @@
 		buttonType={ButtonTypes.CANCEL}
 		on:click={onBrowse}>{uploadFileButtonLabel || 'Browse...'}</Button
 	>
-	{#if value?.length}
+	{#if value?.length && showFile}
 		<div>
 			{#each value as val}
 				<div>{val.name}</div>
