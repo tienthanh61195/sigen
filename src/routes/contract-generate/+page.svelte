@@ -101,7 +101,7 @@
 	let selectedTemplates: string[] = [];
 	$: selectedTemplatesData = uniq(
 		selectedTemplates.reduce((acc, template) => {
-			if ($contractExportStore.templates[template].data)
+			if ($contractExportStore.templates[template]?.data)
 				return acc.concat(...$contractExportStore.templates[template].data);
 			return acc;
 		}, []) || []
@@ -123,8 +123,6 @@
 		return dynamicData;
 	};
 	const onAddTemplateLinkFiles = (files: FileList) => {
-		console.log(files);
-		// contractExportStore.update(c => ({...c, templates: {...c.templates, [d.type]: {content: }}}))
 		for (const i in files) {
 			const f = files[i];
 			if (typeof f !== 'object') continue;
