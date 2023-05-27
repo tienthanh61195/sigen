@@ -33,11 +33,9 @@
 
 	$: {
 		if (options?.length === 1) {
-			console.log('options', options[0].value);
 			onInputValueChange(templateData, options[0].value);
 			// formValues = { ...formValues, [templateData]: options[0].value };
 		}
-		// console.log('Quể', templateData, formValues, formValues[templateData]);
 	}
 
 	$: {

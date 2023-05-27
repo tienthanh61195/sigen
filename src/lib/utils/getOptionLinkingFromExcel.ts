@@ -75,6 +75,5 @@ export default async function getOptionLinkingFromExcel(file: Blob | File) {
 			});
 		});
 	}
-	console.log(links);
 	return links;
 }
