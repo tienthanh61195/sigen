@@ -9,14 +9,13 @@ export default async function getOptionLinkingFromExcel(file: Blob | File) {
 	let initialColKey = '';
 	const initialLinkPropertiesCellPosition: Record<string, any> = {};
 	const columnsWithData: string[] = [];
-	const rowsWithDdata: number | string[] = [];
-	const propetyOptions: Record<string, any> = {};
+
 	// const linkKeys =
 	for (const cellPosition in sheetData) {
 		if (!cellPosition.match(/[A-Z]+[0-9]+/g)) {
 			continue;
 		}
-		const cellValue = sheetData[cellPosition].v as string;
+		const cellValue = sheetData[cellPosition].v.trim() as string;
 		const cellKey = cellPosition.match(/[A-Z]+/)?.[0];
 		const cellNumber = cellPosition.match(/[0-9]+/)?.[0];
 		if (!cellNumber || !cellKey) continue;
@@ -43,7 +42,7 @@ export default async function getOptionLinkingFromExcel(file: Blob | File) {
 		if (!cellPosition.match(/[A-Z]+[0-9]+/g)) {
 			continue;
 		}
-		const cellValue = sheetData[cellPosition].v as string;
+		const cellValue = sheetData[cellPosition].v.trim() as string;
 		const cellKey = cellPosition.match(/[A-Z]+/)?.[0];
 		const cellNumber = cellPosition.match(/[0-9]+/)?.[0];
 		if (

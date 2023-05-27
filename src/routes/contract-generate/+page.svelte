@@ -52,7 +52,7 @@
 	import { isString, keys, merge, uniq } from 'lodash';
 	import downloadObjectAsJson from '$lib/utils/downloadObjectAsJson';
 	import Icon from '$lib/components/Icon.svelte';
-	import getOptionLinkingFromExcel from '$lib/utils/getDataFromExcel';
+	import getOptionLinkingFromExcel from '$lib/utils/getOptionLinkingFromExcel';
 	import DynamicDataInputForSelectInput from '$lib/components/ContractExportPage/DynamicDataInputForSelectInput.svelte';
 	// import saveDocsFile from '$lib/utils/saveDocsFile';
 	// import { Document } from 'docx';
