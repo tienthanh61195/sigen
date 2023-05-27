@@ -7,5 +7,6 @@ export enum ButtonTypes {
 	CANCEL = 'cancel',
 	PLAIN = 'plain',
 	TEXT_ONLY = 'text_only',
-	BORDER = 'border'
+	BORDER = 'border',
+	DANGER = 'danger'
 }

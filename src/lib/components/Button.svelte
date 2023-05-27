@@ -31,6 +31,10 @@
 				break;
 			case ButtonTypes.TEXT_ONLY:
 				classNameByButtonTypes = 'bg-transparent border-transparent';
+				break;
+			case ButtonTypes.DANGER:
+				classNameByButtonTypes = 'text-white bg-danger border-transparent';
+				break;
 			case ButtonTypes.BORDER:
 				classNameByButtonTypes = 'bg-transparent border border-main-blue text-main-blue';
 				break;

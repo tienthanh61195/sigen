@@ -258,7 +258,7 @@
 			onChange={importConfiguration}
 			uploadFileButtonLabel="Import Configuration"
 		/>
-		<Button buttonType={ButtonTypes.BORDER} on:click={onClearConfigurationClick}>
+		<Button buttonType={ButtonTypes.DANGER} on:click={onClearConfigurationClick}>
 			Clear Configuration
 		</Button>
 	</div>
