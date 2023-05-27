@@ -153,6 +153,10 @@
 		downloadObjectAsJson($contractExportStore, 'config');
 	};
 
+	$: onClearConfigurationClick = () => {
+		contractExportStore.set({ templates: {}, data: {}, links: {}, vat: 0 });
+	};
+
 	const importConfiguration = (files: FileList) => {
 		reader.onload = () => {
 			if (isString(reader.result)) {
@@ -254,6 +258,9 @@
 			onChange={importConfiguration}
 			uploadFileButtonLabel="Import Configuration"
 		/>
+		<Button buttonType={ButtonTypes.BORDER} on:click={onClearConfigurationClick}>
+			Clear Configuration
+		</Button>
 	</div>
 	<div class="mt-6">
 		<Input
