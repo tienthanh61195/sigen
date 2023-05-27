@@ -2,10 +2,13 @@
 	import InputTypes from '$lib/constants/inputTypes';
 	import LabelPositions from '$lib/constants/labelPositions';
 	import { contractExportStore } from '$lib/stores';
+	import type { GeneralFunction } from '$lib/types/common';
 	import type { InputOption } from '$lib/types/input-component';
 	import Input from '../FormRelated/Input/Input.svelte';
 	export let templateData: any;
 	export let mainSelectValue = '';
+	export let formValues: Record<string, any> = {};
+	export let onInputValueChange: GeneralFunction;
 	$: mainOptionName = Object.keys($contractExportStore.links)[0];
 
 	$: getTemplateNameByDataName = (data: string) => {
@@ -23,9 +26,20 @@
 		if (templateData === mainOptionName) {
 			mainSelectValue = v;
 		}
+		onInputValueChange(templateData, v);
 	};
 
 	let options: InputOption[] | undefined;
+
+	$: {
+		if (options?.length === 1) {
+			console.log('options', options[0].value);
+			onInputValueChange(templateData, options[0].value);
+			// formValues = { ...formValues, [templateData]: options[0].value };
+		}
+		// console.log('Quể', templateData, formValues, formValues[templateData]);
+	}
+
 	$: {
 		const links = $contractExportStore.links[mainOptionName];
 		if (templateData === mainOptionName) {
@@ -52,7 +66,7 @@
 	label="{templateData} [{getTemplateNameByDataName(templateData)}]"
 	name={templateData}
 	allowAddMore={false}
-	value={options?.length === 1 ? options[0].value : undefined}
+	value={formValues[templateData]}
 	type={isSelectInput ? InputTypes.SELECT : InputTypes.TEXT}
 	onChange={onInputSelectChange}
 	{options}

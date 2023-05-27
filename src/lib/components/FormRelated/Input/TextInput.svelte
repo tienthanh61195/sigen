@@ -57,7 +57,7 @@
 >
 	<div class="w-full flex" bind:this={optionContainerRef}>
 		<input
-			autocomplete={textSuggestion.length ? 'off' : 'auto'}
+			autocomplete={textSuggestion.length ? 'off' : 'on'}
 			on:focusout
 			on:focus={onFocus}
 			on:blur

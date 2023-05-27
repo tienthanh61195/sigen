@@ -62,12 +62,50 @@
 	let mainSelectValue = '';
 	$: mainOptionName = Object.keys($contractExportStore.links)[0];
 
+	let generateContractFormInputValues: Record<string, any> = {};
+	$: hardcodedLogic = {
+		'Giá trị trước VAT': (fValues: Record<string, any>) =>
+			Number(fValues['SL đặt hàng']) * Number(fValues['Đơn giá']),
+		'Giá trị VAT': (fValues: Record<string, any>) =>
+			(Number(fValues['SL đặt hàng']) *
+				Number(fValues['Đơn giá']) *
+				Number($contractExportStore.vat)) /
+			100,
+		'Giá trị sau VAT': (fValues: Record<string, any>) =>
+			(Number(fValues['SL đặt hàng']) *
+				Number(fValues['Đơn giá']) *
+				(100 + Number($contractExportStore.vat))) /
+			100
+	};
+
+	$: {
+		let isChanged = false;
+		const newFormValues = Object.entries(hardcodedLogic).reduce((acc, [property, calculate]) => {
+			const newCalculatedValue = calculate(generateContractFormInputValues);
+			console.log('caluc', newCalculatedValue);
+			if (newCalculatedValue) {
+				acc[property] = newCalculatedValue;
+				isChanged = true;
+			}
+			return acc;
+		}, {} as Record<string, any>);
+		if (isChanged) {
+			generateContractFormInputValues = { ...generateContractFormInputValues, ...newFormValues };
+		}
+	}
+
+	$: onContractFormInputValueChange = (name: string, value: any) => {
+		if (generateContractFormInputValues[name] !== value)
+			generateContractFormInputValues = { ...generateContractFormInputValues, [name]: value };
+	};
+
 	let selectedTemplates: string[] = [];
 	$: selectedTemplatesData = uniq(
 		selectedTemplates.reduce((acc, template) => {
 			return acc.concat(...$contractExportStore.templates[template].data);
 		}, []) || []
 	);
+
 	// function previewFile(e) {
 	// 	const file: any = e.target.files[0];
 
@@ -161,6 +199,9 @@
 			selectedTemplates = selectedTemplates;
 		}
 	};
+	const onVatFieldInputChange = (v: string) => {
+		contractExportStore.update((c) => ({ ...c, vat: Number(v || 0) }));
+	};
 
 	$: onGenerateContractFormSubmitClick = (formData: Record<string, any>) => {
 		selectedTemplates.forEach((template) => {
@@ -214,8 +255,16 @@
 			uploadFileButtonLabel="Import Configuration"
 		/>
 	</div>
-
-	<div class="mt-6 flex flex-nowrap gap-10">
+	<div class="mt-6">
+		<Input
+			inputClassName="w-20"
+			value={$contractExportStore.vat}
+			label="VAT %"
+			labelPosition={LabelPositions.LEFT}
+			onChange={onVatFieldInputChange}
+		/>
+	</div>
+	<div class="mt-3 flex flex-nowrap gap-10">
 		{#each contractTemplates as template}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div
@@ -278,7 +327,12 @@
 		{:else if modalType === 'generate-contract'}
 			<Form onSubmit={onGenerateContractFormSubmitClick}>
 				{#each selectedTemplatesData as templateData}
-					<DynamicDataInputForSelectInput bind:mainSelectValue {templateData} />
+					<DynamicDataInputForSelectInput
+						formValues={generateContractFormInputValues}
+						onInputValueChange={onContractFormInputValueChange}
+						bind:mainSelectValue
+						{templateData}
+					/>
 				{/each}
 				<Button buttonType={ButtonTypes.PRIMARY} type="submit">Generate Contract</Button>
 			</Form>
