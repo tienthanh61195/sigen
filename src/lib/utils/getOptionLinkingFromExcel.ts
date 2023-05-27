@@ -15,7 +15,7 @@ export default async function getOptionLinkingFromExcel(file: Blob | File) {
 		if (!cellPosition.match(/[A-Z]+[0-9]+/g)) {
 			continue;
 		}
-		const cellValue = sheetData[cellPosition].v.trim() as string;
+		const cellValue = `${sheetData[cellPosition].v}`.trim() as string;
 		const cellKey = cellPosition.match(/[A-Z]+/)?.[0];
 		const cellNumber = cellPosition.match(/[0-9]+/)?.[0];
 		if (!cellNumber || !cellKey) continue;
@@ -42,7 +42,7 @@ export default async function getOptionLinkingFromExcel(file: Blob | File) {
 		if (!cellPosition.match(/[A-Z]+[0-9]+/g)) {
 			continue;
 		}
-		const cellValue = sheetData[cellPosition].v.trim() as string;
+		const cellValue = `${sheetData[cellPosition].v}`.trim() as string;
 		const cellKey = cellPosition.match(/[A-Z]+/)?.[0];
 		const cellNumber = cellPosition.match(/[0-9]+/)?.[0];
 		if (
