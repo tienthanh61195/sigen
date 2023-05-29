@@ -239,12 +239,13 @@
 	};
 
 	$: onGenerateContractFormSubmitClick = (formData: Record<string, any>) => {
-		formData = Object.entries(formData).map(([k, v]) => {
+		formData = Object.entries(formData).reduce((acc, [k, v]) => {
 			if (!isNaN(v)) {
 				v = Number(v).toLocaleString();
 			}
-			return { k: v };
-		});
+			acc[k] = v;
+			return acc;
+		}, {} as any);
 		selectedTemplates.forEach((template) => {
 			const templateContent = $contractExportStore.templates[template].content;
 			const { doc, saveDocFile } = readDocFile(templateContent);
