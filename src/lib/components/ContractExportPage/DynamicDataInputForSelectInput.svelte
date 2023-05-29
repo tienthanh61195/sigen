@@ -48,10 +48,11 @@
 		} else if (mainSelectValue) {
 			const nestedLinksByTemplateData = links[mainSelectValue][templateData];
 			if (nestedLinksByTemplateData)
-				options = links[mainSelectValue][templateData].map(({ value, description }) => ({
-					value,
-					label: `${value} (${description})`
-				}));
+				options = links[mainSelectValue][templateData].map(({ value, description }) => {
+					let label = `${value} (${description})`;
+					if (!isNaN(value)) label = `${Number(value).toLocaleString()} (${description})`;
+					return { value, label };
+				});
 		}
 	}
 	$: isSelectInput = !!options;
