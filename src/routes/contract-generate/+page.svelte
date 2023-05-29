@@ -67,17 +67,17 @@
 
 	$: hardcodedLogic = {
 		'Giá trị trước VAT': (fValues: Record<string, any>) =>
-			Number(Number(fValues['SL đặt hàng']) * Number(fValues['Đơn giá'])).toLocaleString(),
+			Number(Number(fValues['SL đặt hàng'] || 0) * Number(fValues['Đơn giá'])).toLocaleString(),
 		'Giá trị VAT': (fValues: Record<string, any>) =>
 			Number(
-				(Number(fValues['SL đặt hàng']) *
+				(Number(fValues['SL đặt hàng'] || 0) *
 					Number(fValues['Đơn giá']) *
 					Number($contractExportStore.vat)) /
 					100
 			).toLocaleString(),
 		'Giá trị sau VAT': (fValues: Record<string, any>) =>
 			Number(
-				(Number(fValues['SL đặt hàng']) *
+				(Number(fValues['SL đặt hàng'] || 0) *
 					Number(fValues['Đơn giá']) *
 					(100 + Number($contractExportStore.vat))) /
 					100
