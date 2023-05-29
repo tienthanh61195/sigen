@@ -16,7 +16,7 @@ export default function readDocFile(result: string | ArrayBuffer) {
 			// For a 50MB output document, expect 500ms additional CPU time
 			compression: 'DEFLATE'
 		});
-		saveAs(blob, `${filename}.docx`);
+		saveAs(blob, `new-${filename}`);
 	};
 	return { doc, saveDocFile };
 }
