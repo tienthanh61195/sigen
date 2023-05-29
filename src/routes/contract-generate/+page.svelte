@@ -63,7 +63,7 @@
 	$: mainOptionName = Object.keys($contractExportStore.links)[0];
 
 	let generateContractFormInputValues: Record<string, any> =
-		$contractExportStore.generateContractInput;
+		$contractExportStore.generateContractInput || {};
 
 	$: hardcodedLogic = {
 		'Giá trị trước VAT': (fValues: Record<string, any>) =>
