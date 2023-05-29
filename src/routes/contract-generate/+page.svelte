@@ -87,6 +87,7 @@
 	$: {
 		let isChanged = false;
 		const newFormValues = Object.entries(hardcodedLogic).reduce((acc, [property, calculate]) => {
+			if (!generateContractFormInputValues) return acc;
 			const newCalculatedValue = calculate(generateContractFormInputValues);
 			if (newCalculatedValue) {
 				acc[property] = newCalculatedValue;
