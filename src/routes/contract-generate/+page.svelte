@@ -49,7 +49,7 @@
 	import { ButtonTypes } from '$lib/constants/buttonTypes';
 	import { contractExportStore } from '$lib/stores';
 	import readDocFile from '$lib/utils/readDocFile';
-	import { isString, keys, merge, uniq } from 'lodash';
+	import { isEmpty, isString, keys, merge, uniq } from 'lodash';
 	import downloadObjectAsJson from '$lib/utils/downloadObjectAsJson';
 	import Icon from '$lib/components/Icon.svelte';
 	import getOptionLinkingFromExcel from '$lib/utils/getOptionLinkingFromExcel';
@@ -87,7 +87,7 @@
 	$: {
 		let isChanged = false;
 		const newFormValues = Object.entries(hardcodedLogic).reduce((acc, [property, calculate]) => {
-			if (!generateContractFormInputValues) return acc;
+			if (!generateContractFormInputValues || isEmpty(generateContractFormInputValues)) return acc;
 			const newCalculatedValue = calculate(generateContractFormInputValues);
 			if (newCalculatedValue) {
 				acc[property] = newCalculatedValue;
