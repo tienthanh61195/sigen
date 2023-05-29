@@ -62,20 +62,26 @@
 	let mainSelectValue = '';
 	$: mainOptionName = Object.keys($contractExportStore.links)[0];
 
-	let generateContractFormInputValues: Record<string, any> = {};
+	let generateContractFormInputValues: Record<string, any> =
+		$contractExportStore.generateContractInput;
+
 	$: hardcodedLogic = {
 		'Giá trị trước VAT': (fValues: Record<string, any>) =>
-			Number(fValues['SL đặt hàng']) * Number(fValues['Đơn giá']),
+			Number(Number(fValues['SL đặt hàng']) * Number(fValues['Đơn giá'])).toLocaleString(),
 		'Giá trị VAT': (fValues: Record<string, any>) =>
-			(Number(fValues['SL đặt hàng']) *
-				Number(fValues['Đơn giá']) *
-				Number($contractExportStore.vat)) /
-			100,
+			Number(
+				(Number(fValues['SL đặt hàng']) *
+					Number(fValues['Đơn giá']) *
+					Number($contractExportStore.vat)) /
+					100
+			).toLocaleString(),
 		'Giá trị sau VAT': (fValues: Record<string, any>) =>
-			(Number(fValues['SL đặt hàng']) *
-				Number(fValues['Đơn giá']) *
-				(100 + Number($contractExportStore.vat))) /
-			100
+			Number(
+				(Number(fValues['SL đặt hàng']) *
+					Number(fValues['Đơn giá']) *
+					(100 + Number($contractExportStore.vat))) /
+					100
+			).toLocaleString()
 	};
 
 	$: {
@@ -94,8 +100,13 @@
 	}
 
 	$: onContractFormInputValueChange = (name: string, value: any) => {
-		if (generateContractFormInputValues[name] !== value)
+		if (generateContractFormInputValues[name] !== value) {
 			generateContractFormInputValues = { ...generateContractFormInputValues, [name]: value };
+			contractExportStore.update((c) => ({
+				...c,
+				generateContractInput: { ...c.generateContractInput, [name]: value }
+			}));
+		}
 	};
 
 	let selectedTemplates: string[] = [];

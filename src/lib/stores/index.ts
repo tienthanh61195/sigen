@@ -10,7 +10,8 @@ export const contractExportStore = persistStore('contractExport', {
 	templates: {} as Record<string, any>,
 	data: {} as Record<string, any>,
 	links: {} as Record<string, any>,
-	vat: 0
+	vat: 0,
+	generateContractInput: {}
 });
 
 export const financeReportStore = persistStore<{ credit: any[]; debit: any[] }>('financeReport', {

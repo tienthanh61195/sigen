@@ -1,23 +1,17 @@
 <script lang="ts">
-	import {
-		getBankOptionSuggestion,
-		type ICommonBankExtraSchema,
-		type bankSchema,
-		defaultBankOptions
-	} from '$lib/constants/banks';
+	import { defaultBankOptions, getBankOptionSuggestion } from '$lib/constants/banks';
 	import { ButtonTypes } from '$lib/constants/buttonTypes';
 	import InputTypes from '$lib/constants/inputTypes';
 	import { financeReportStore, messagesStore } from '$lib/stores';
+	import { commonStyle, commonTitleStyle, titleStyle } from '$lib/utils/getDefaultExcelStyle';
+	import romanizeNumber from '$lib/utils/romanizeNumber';
+	import { isEmpty, isString } from 'lodash';
+	import { DateTime } from 'luxon';
+	import * as xlsx from 'xlsx-js-style';
 	import Button from '../Button.svelte';
 	import Input from '../FormRelated/Input/Input.svelte';
-	import * as xlsx from 'xlsx-js-style';
-	import BankTableExtraPropertySelector from './BankTableExtraPropertySelector.svelte';
-	import romanizeNumber from '$lib/utils/romanizeNumber';
-	import { DateTime } from 'luxon';
-	import { commonStyle, commonTitleStyle, titleStyle } from '$lib/utils/getDefaultExcelStyle';
-	import ExtraPropertyInput from './ExtraPropertyInput.svelte';
-	import { isEmpty, isString } from 'lodash';
 	import Icon from '../Icon.svelte';
+	import ExtraPropertyInput from './ExtraPropertyInput.svelte';
 	// export let bankType: string;
 	export let standardizedRecords: any[];
 	let extraRecords: any[] = [];
