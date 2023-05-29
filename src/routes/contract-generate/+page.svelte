@@ -105,7 +105,7 @@
 			generateContractFormInputValues = { ...generateContractFormInputValues, [name]: value };
 			contractExportStore.update((c) => ({
 				...c,
-				generateContractInput: { ...c.generateContractInput, [name]: value }
+				generateContractInput: { ...(c.generateContractInput || {}), [name]: value }
 			}));
 		}
 	};
