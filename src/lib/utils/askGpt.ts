@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-const openaiToken = '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';
-
 // const configuration = new Configuration({
 //   apiKey: openaiToken,
 // });
