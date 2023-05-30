@@ -194,6 +194,7 @@
 					<input
 						autocomplete="off"
 						{disabled}
+						class="!p-0"
 						on:focus={onInputFocus}
 						on:keypress={(e) => {
 							const v = e.target.value;
@@ -310,7 +311,7 @@
 							<span>{option.label}</span>
 						{/if}
 						{#if flatten([value])?.includes(option.value)}
-							<Icon name="check" class="text-base ml-2 text-main-blue" />
+							<Icon name="check" class="text-base ml-auto text-main-blue" />
 						{/if}
 						{#if onRemoveOption}
 							<Icon

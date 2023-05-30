@@ -46,7 +46,7 @@
 
 <button
 	{disabled}
-	class="text-base flex items-center justify-center rounded px-6 py-3 leading-[0.9] {buttonType ===
+	class="outline-none text-base flex items-center justify-center rounded px-6 py-3 leading-[0.9] {buttonType ===
 	ButtonTypes.DISABLED
 		? ''
 		: 'hover:opacity-70'} {classNameByButtonTypes} {className}"

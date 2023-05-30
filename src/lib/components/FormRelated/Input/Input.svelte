@@ -43,6 +43,7 @@
 	export let uploadFileButtonLabel: string | undefined = '';
 	export let uploadFileButtonClassName: string | undefined = '';
 	export let showFile = true;
+	export let multiple = false;
 	// ------------ USE ZOD FOR VALIDATION ----------------
 	export let validation: ZodTypeAny | undefined = undefined;
 	export let optionComponent:
@@ -162,5 +163,6 @@
 		{textSuggestion}
 		{uploadFileButtonClassName}
 		{showFile}
+		{multiple}
 	/>
 </BaseInput>

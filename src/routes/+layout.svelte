@@ -7,7 +7,8 @@
 	import { page } from '$app/stores';
 	const menuNavigations = [
 		{ label: 'Phân Loại Tài Chính', route: `${base}/financial-report` },
-		{ label: 'Xuất Giấy Tờ', route: `${base}/contract-generate` }
+		{ label: 'Xuất Giấy Tờ', route: `${base}/contract-generate` },
+		{ label: 'Tạo Bài ChatGPT', route: `${base}/gpt-article-generate` }
 	];
 	const onNavigationClick = (route: string) => {
 		goto(route);
