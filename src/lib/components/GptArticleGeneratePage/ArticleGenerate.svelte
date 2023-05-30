@@ -36,7 +36,10 @@
 					...promptSet.map(async (prompt: string[]) => {
 						const promptString = `Write ${prompt.join(' ')}`;
 						if ($gptArticleGenerateStore.gptAnswers[promptString]) return;
-						const response = await askGpt(promptString);
+						const response = await askGpt({
+							prompt: promptString,
+							token: $gptArticleGenerateStore.gptToken
+						});
 						results[promptString] = response;
 						gptArticleGenerateStore.update((c) => ({
 							...c,

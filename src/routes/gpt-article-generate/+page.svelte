@@ -95,6 +95,14 @@
 		<Button buttonType={ButtonTypes.PRIMARY} on:click={onGenerateArticleClick}>
 			Generate Articles
 		</Button>
+		<Input
+			label="Gpt Key"
+			type={InputTypes.PASSWORD}
+			value={$gptArticleGenerateStore.gptToken}
+			onChange={(v) => {
+				gptArticleGenerateStore.update((c) => ({ ...c, gptToken: v }));
+			}}
+		/>
 	</div>
 	<div
 		bind:this={tableContainerRef}

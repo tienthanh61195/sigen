@@ -24,8 +24,10 @@ export const gptArticleGenerateStore = persistStore<{
 	dataByColumnLabel: Record<string, InputOption[]>;
 	columns: { id: string; label: string }[];
 	gptAnswers: Record<string, string>;
+	gptToken: string;
 }>('gptArticle', {
 	dataByColumnLabel: {},
 	columns: [],
-	gptAnswers: {}
+	gptAnswers: {},
+	gptToken: ''
 });
