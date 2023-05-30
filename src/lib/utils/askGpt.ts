@@ -8,7 +8,7 @@ const chatgptApi = axios.create({
 });
 
 export default async function askGpt({ prompt, token }: { prompt: string; token: string }) {
-	if (!token) return;
+	if (!token) throw Error('Thiếu key rồi');
 	return (
 		await chatgptApi.post(
 			'',

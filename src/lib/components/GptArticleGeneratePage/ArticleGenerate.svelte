@@ -7,11 +7,12 @@
 	import Button from '../Button.svelte';
 	import Icon from '../Icon.svelte';
 	import wait from '$lib/utils/wait';
+	import downloadArrayAsCsv from '$lib/utils/downloadArrayAsCsv';
 
 	export let row: Record<string, any>;
 	export let columns: { id: string; name: string }[];
 	export let loading = false;
-	let timer = 0;
+	let gptError = '';
 	$: prompts =
 		columns.length && !isEmpty(row)
 			? generateCombinations(
@@ -24,6 +25,22 @@
 			  )
 			: [];
 
+	$: onExportResult = () => {
+		if (!isEmpty($gptArticleGenerateStore.gptAnswers)) {
+			const resultAsArrays = Object.entries($gptArticleGenerateStore.gptAnswers).reduce(
+				(acc, [prompt, response]) => {
+					if (prompts.some((pr) => prompt === `Write ${pr.join(' ')}`)) {
+						acc.push([`"${prompt.replace(/\"/g, '"""')}"`, `"${response.replace(/\"/g, '"""')}"`]);
+					}
+					return acc;
+				},
+				[] as any[]
+			);
+			resultAsArrays.unshift(['Prompt', 'GPT Response']);
+			// console.log(resultAsArrays.map((e) => e.join(',')).join('\n'));
+			downloadArrayAsCsv(resultAsArrays, `gpt-generated-${new Date().toISOString()}`);
+		}
+	};
 	$: onAskGptClick = async () => {
 		if (!prompts?.length) return;
 		loading = true;
@@ -31,6 +48,7 @@
 		const maxPerMin = 3;
 		try {
 			for (let i = 0; i <= prompts.length; i = i + maxPerMin) {
+				const startAskTime = Date.now();
 				const promptSet = prompts.slice(i, maxPerMin + i);
 				await Promise.all([
 					...promptSet.map(async (prompt: string[]) => {
@@ -46,12 +64,27 @@
 							gptAnswers: { ...c.gptAnswers, ...results }
 						}));
 						return;
-					}),
-					wait(70000)
+					})
 				]);
+				const endAskTime = Date.now();
+				if (endAskTime - startAskTime > 70000) continue;
+				if (i + maxPerMin < prompts.length) {
+					await wait(70000 - (endAskTime - startAskTime));
+				}
 			}
-		} catch (err) {}
-		loading = false;
+			const resultAsArrays = Object.entries(results).reduce((acc, [prompt, response]) => {
+				acc.push([`"${prompt.replace(/\"/g, '"""')}"`, `"${response.replace(/\"/g, '"""')}"`]);
+				return acc;
+			}, [] as any[]);
+			resultAsArrays.unshift(['Prompt', 'GPT Response']);
+			// console.log(resultAsArrays.map((e) => e.join(',')).join('\n'));
+			downloadArrayAsCsv(resultAsArrays, `gpt-generated-${new Date().toISOString()}`);
+		} catch (err) {
+			console.log('error', err);
+			gptError = `Chờ xíu thử lại coi sao nha, lỗi gì rồi - ${err}`;
+		} finally {
+			loading = false;
+		}
 	};
 </script>
 
@@ -81,14 +114,24 @@
 			</div>
 		{/each}
 	</div>
-	<Button
-		disabled={loading}
-		class="mt-4"
-		buttonType={loading ? ButtonTypes.DISABLED : ButtonTypes.PRIMARY}
-		on:click={onAskGptClick}
-	>
-		{loading ? 'ASKING...' : 'Ask GPT'}
-	</Button>
+	<div class="flex gap-3">
+		<div class="max-w-[50%]">
+			<Button
+				disabled={loading}
+				class="mt-4"
+				buttonType={loading ? ButtonTypes.DISABLED : ButtonTypes.PRIMARY}
+				on:click={onAskGptClick}
+			>
+				{loading ? 'ASKING...' : 'Ask GPT'}
+			</Button>
+			{#if gptError}<div class="text-danger">{gptError}</div>{/if}
+		</div>
+		<div>
+			<Button class="mt-4" buttonType={ButtonTypes.SECONDARY} on:click={onExportResult}>
+				Export Results
+			</Button>
+		</div>
+	</div>
 </div>
 
 <style lang="postcss">

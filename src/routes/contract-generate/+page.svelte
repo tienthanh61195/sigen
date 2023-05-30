@@ -362,7 +362,6 @@
 	</div>
 </div>
 <Modal
-	outClickToClose={false}
 	containerClassName="min-w-[300px]"
 	on:close={() => {
 		modalType = '';
