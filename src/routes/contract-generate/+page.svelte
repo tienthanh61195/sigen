@@ -85,18 +85,19 @@
 	};
 
 	$: {
-		let isChanged = false;
-		const newFormValues = Object.entries(hardcodedLogic).reduce((acc, [property, calculate]) => {
-			if (!generateContractFormInputValues || isEmpty(generateContractFormInputValues)) return acc;
-			const newCalculatedValue = calculate(generateContractFormInputValues);
-			if (newCalculatedValue) {
-				acc[property] = newCalculatedValue;
-				isChanged = true;
+		if (generateContractFormInputValues && !isEmpty(generateContractFormInputValues)) {
+			let isChanged = false;
+			const newFormValues = Object.entries(hardcodedLogic).reduce((acc, [property, calculate]) => {
+				const newCalculatedValue = calculate(generateContractFormInputValues);
+				if (newCalculatedValue) {
+					acc[property] = newCalculatedValue;
+					isChanged = true;
+				}
+				return acc;
+			}, {} as Record<string, any>);
+			if (isChanged) {
+				generateContractFormInputValues = { ...generateContractFormInputValues, ...newFormValues };
 			}
-			return acc;
-		}, {} as Record<string, any>);
-		if (isChanged) {
-			generateContractFormInputValues = { ...generateContractFormInputValues, ...newFormValues };
 		}
 	}
 

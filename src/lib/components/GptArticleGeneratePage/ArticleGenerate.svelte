@@ -13,7 +13,16 @@
 	export let loading = false;
 	let timer = 0;
 	$: prompts =
-		columns.length && !isEmpty(row) ? generateCombinations(columns.map((c) => row[c.id])) : [];
+		columns.length && !isEmpty(row)
+			? generateCombinations(
+					columns.reduce((acc, c) => {
+						if (row[c.id]) {
+							acc.push(row[c.id]);
+						}
+						return acc;
+					}, [] as any[])
+			  )
+			: [];
 
 	$: onAskGptClick = async () => {
 		if (!prompts?.length) return;
@@ -47,7 +56,7 @@
 	<div class="overflow-auto max-h-">
 		{#each prompts as prompt, index (index)}
 			<div>
-				<div class="pl-2 py-1 border border-black">
+				<div class="px-2 py-1 border border-black">
 					Write {prompt.join(' ')}
 				</div>
 				{#if $gptArticleGenerateStore.gptAnswers?.[`Write ${prompt.join(' ')}`]}
