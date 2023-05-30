@@ -4,7 +4,6 @@ export default function generateCombinations(
 	current: any[] = [],
 	combinations: any[] = []
 ): any {
-	console.log(arr);
 	if (index === arr.length) {
 		combinations.push(current);
 		return;
