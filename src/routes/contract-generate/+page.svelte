@@ -240,7 +240,7 @@
 
 	$: onGenerateContractFormSubmitClick = (formData: Record<string, any>) => {
 		formData = Object.entries(formData).reduce((acc, [k, v]) => {
-			if (!isNaN(v)) {
+			if (k.includes('Đơn giá')) {
 				v = Number(v).toLocaleString();
 			}
 			acc[k] = v;

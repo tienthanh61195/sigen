@@ -17,7 +17,7 @@
 	let columns = $gptArticleGenerateStore.columns.map((col) => ({ id: col.id, name: col.label }));
 	let tableContainerRef: HTMLElement;
 	$: dataByColumnLabel = $gptArticleGenerateStore.dataByColumnLabel;
-	let rows: any[] = [{}];
+	let row: Record<string, string[]> = {};
 	const flipDurationMs = 100;
 	function handleDndConsider(e) {
 		columns = e.detail.items;
@@ -31,9 +31,9 @@
 		columns = columns.concat({ id: uuidv4(), name: '' });
 	};
 
-	$: onAddRowClick = () => {
-		rows = rows.concat({});
-	};
+	// $: onAddRowClick = () => {
+	// 	rows = rows.concat({});
+	// };
 
 	const onCustomizeColumnClick = () => {
 		modalType = 'customize-column';
@@ -99,7 +99,7 @@
 	<div
 		bind:this={tableContainerRef}
 		class="table_container"
-		style="grid-template-columns: repeat({columns.length}, 200px)"
+		style="grid-template-columns: repeat({columns.length}, 170px)"
 	>
 		{#each columns as column, index (column.id)}
 			<div
@@ -110,26 +110,30 @@
 				{column.name}
 			</div>
 		{/each}
-		{#each rows as row, index (index)}
-			{#each columns as column, columnIndex (column.id)}
-				<div class="border border-black -mt-[1px] p-2 {columnIndex > 0 ? '-ml-[1px]' : ''}">
-					<Input
-						multiple={true}
-						type={InputTypes.SELECT}
-						onAddNewOption={(v) => {
-							onAddNewOption(v, column);
-						}}
-						onChange={(v) => {
-							rows[index] = { ...(rows[index] || {}), [column.id]: v };
-						}}
-						options={dataByColumnLabel[column.name] || []}
-					/>
-				</div>
-			{/each}
+		{#each columns as column, columnIndex (column.id)}
+			<div class="border border-black -mt-[1px] p-2 {columnIndex > 0 ? '-ml-[1px]' : ''}">
+				<Input
+					multiple={true}
+					type={InputTypes.SELECT}
+					onAddNewOption={(v) => {
+						onAddNewOption(v, column);
+					}}
+					onChange={(v) => {
+						row = { ...(row || {}), [column.id]: v };
+					}}
+					options={dataByColumnLabel[column.name] || []}
+				/>
+				{#if row[column.id]}
+					{#each row[column.id] as selectedValues}
+						<div class="p-2">{selectedValues}</div>
+					{/each}
+				{/if}
+			</div>
 		{/each}
 	</div>
 </div>
 <Modal
+	containerClassName=" max-w-[80%]"
 	header={modalType === 'customize-column' ? 'Customize Columns' : 'Generate Articles'}
 	visible={!!modalType}
 	on:close={closeModal}
@@ -174,14 +178,14 @@
 				</section>
 			{/if}
 		{:else if modalType === 'generate-article'}
-			<ArticleGenerate {rows} {columns} />
+			<ArticleGenerate {row} {columns} />
 		{/if}
 	</div>
 </Modal>
 
 <style lang="postcss">
 	.table_container {
-		@apply grid grid-rows-[minmax(50px,_auto)];
+		@apply grid grid-rows-[minmax(50px,_auto)] overflow-auto;
 	}
 	.columns_customizer_container {
 		& > :not(:first-child) {
