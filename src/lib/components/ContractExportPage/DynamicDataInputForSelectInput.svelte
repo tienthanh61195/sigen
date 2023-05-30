@@ -56,6 +56,11 @@
 		}
 	}
 	$: isSelectInput = !!options;
+	$: {
+		if (templateData === 'Đơn giá') {
+			console.log(options, $contractExportStore.links[mainOptionName], mainSelectValue);
+		}
+	}
 </script>
 
 <Input

@@ -54,31 +54,34 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import getOptionLinkingFromExcel from '$lib/utils/getOptionLinkingFromExcel';
 	import DynamicDataInputForSelectInput from '$lib/components/ContractExportPage/DynamicDataInputForSelectInput.svelte';
+	import toVietnameseNumberString from '$lib/utils/toVietnameseNumberString';
 	// import saveDocsFile from '$lib/utils/saveDocsFile';
 	// import { Document } from 'docx';
 	const onAddNewTemplateClick = () => {
 		modalType = 'add-template';
 	};
-	let mainSelectValue = '';
 	$: mainOptionName = Object.keys($contractExportStore.links)[0];
+	$: mainSelectValue = $contractExportStore.generateContractInput[mainOptionName];
 
 	let generateContractFormInputValues: Record<string, any> =
 		$contractExportStore.generateContractInput || {};
 
 	$: hardcodedLogic = {
 		'Giá trị trước VAT': (fValues: Record<string, any>) =>
-			Number(Number(fValues['SL đặt hàng'] || 0) * Number(fValues['Đơn giá'])).toLocaleString(),
+			Number(
+				Number(fValues['SL đặt hàng'] || 0) * Number(fValues['Đơn giá'] || 0)
+			).toLocaleString(),
 		'Giá trị VAT': (fValues: Record<string, any>) =>
 			Number(
 				(Number(fValues['SL đặt hàng'] || 0) *
-					Number(fValues['Đơn giá']) *
+					Number(fValues['Đơn giá'] || 0) *
 					Number($contractExportStore.vat)) /
 					100
 			).toLocaleString(),
 		'Giá trị sau VAT': (fValues: Record<string, any>) =>
 			Number(
 				(Number(fValues['SL đặt hàng'] || 0) *
-					Number(fValues['Đơn giá']) *
+					Number(fValues['Đơn giá'] || 0) *
 					(100 + Number($contractExportStore.vat))) /
 					100
 			).toLocaleString()
@@ -95,6 +98,17 @@
 				}
 				return acc;
 			}, {} as Record<string, any>);
+
+			selectedTemplatesData?.forEach((fieldKey: string) => {
+				if (fieldKey.toLowerCase().includes('bằng chữ')) {
+					const fieldKeyWithoutMark = fieldKey.replace(/\sbằng\schữ/gi, '');
+					if (generateContractFormInputValues[fieldKeyWithoutMark]) {
+						newFormValues[fieldKey] = toVietnameseNumberString(
+							generateContractFormInputValues[fieldKeyWithoutMark]
+						);
+					}
+				}
+			});
 			if (isChanged) {
 				generateContractFormInputValues = { ...generateContractFormInputValues, ...newFormValues };
 			}
@@ -104,6 +118,7 @@
 	$: onContractFormInputValueChange = (name: string, value: any) => {
 		if (generateContractFormInputValues[name] !== value) {
 			generateContractFormInputValues = { ...generateContractFormInputValues, [name]: value };
+			console.log({ [name]: value });
 			contractExportStore.update((c) => ({
 				...c,
 				generateContractInput: { ...(c.generateContractInput || {}), [name]: value }
@@ -356,7 +371,7 @@
 	header={modalType === 'add-template' ? 'Add new file template' : 'Generate Contracts'}
 >
 	<div class="p-6">
-		{#if modalType === 'add-template'}
+		<!-- {#if modalType === 'add-template'}
 			<Form onSubmit={onAddTemplateLinkFiles}>
 				<div class="mb-6">
 					<Input name="type" label="Contract Type" labelPosition={LabelPositions.TOP} />
@@ -376,19 +391,19 @@
 					{/if}
 				</div>
 			</Form>
-		{:else if modalType === 'generate-contract'}
-			<Form onSubmit={onGenerateContractFormSubmitClick}>
-				{#each selectedTemplatesData as templateData}
-					<DynamicDataInputForSelectInput
-						formValues={generateContractFormInputValues}
-						onInputValueChange={onContractFormInputValueChange}
-						bind:mainSelectValue
-						{templateData}
-					/>
-				{/each}
-				<Button buttonType={ButtonTypes.PRIMARY} type="submit">Generate Contract</Button>
-			</Form>
-		{/if}
+		{:else if modalType === 'generate-contract'} -->
+		<Form onSubmit={onGenerateContractFormSubmitClick}>
+			{#each selectedTemplatesData as templateData}
+				<DynamicDataInputForSelectInput
+					formValues={generateContractFormInputValues}
+					onInputValueChange={onContractFormInputValueChange}
+					bind:mainSelectValue
+					{templateData}
+				/>
+			{/each}
+			<Button buttonType={ButtonTypes.PRIMARY} type="submit">Generate Contract</Button>
+		</Form>
+		<!-- {/if} -->
 	</div>
 </Modal>
 
