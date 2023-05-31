@@ -14,9 +14,17 @@
 	import Form from '$lib/components/FormRelated/Form.svelte';
 	import ArticleGenerate from '$lib/components/GptArticleGeneratePage/ArticleGenerate.svelte';
 	let modalType = '';
-	let columns = $gptArticleGenerateStore.columns.map((col) => ({ id: col.id, name: col.label }));
+	let columns = $gptArticleGenerateStore.columns;
+	let savePresetDone = false;
+	$: activeColumns = columns.filter((col) => col.active);
 	let tableContainerRef: HTMLElement;
 	$: dataByColumnLabel = $gptArticleGenerateStore.dataByColumnLabel;
+	$: columnPresetOptions = $gptArticleGenerateStore.columnsPreset?.map((col, i) => {
+		return {
+			label: col.map((c) => c.label).join(', '),
+			value: `${i}`
+		};
+	});
 	let row: Record<string, string[]> = {};
 	const flipDurationMs = 100;
 	function handleDndConsider(e) {
@@ -26,14 +34,28 @@
 		columns = e.detail.items;
 	}
 
-	$: onAddColumnClick = () => {
-		// gptArticleGenerateStore.update(c => {})
-		columns = columns.concat({ id: uuidv4(), name: '' });
-	};
+	// $: onAddColumnClick = () => {
+	// 	// gptArticleGenerateStore.update(c => {})
+	// 	columns = columns.concat({ id: uuidv4(), label: '' });
+	// };
 
 	// $: onAddRowClick = () => {
 	// 	rows = rows.concat({});
 	// };
+
+	$: onClickSaveColumnPreset = () => {
+		if (
+			$gptArticleGenerateStore.columnsPreset.some(
+				(preset) =>
+					preset.map((col) => col.label).join(', ') === columns.map((c) => c.label).join(', ')
+			)
+		)
+			return;
+		gptArticleGenerateStore.update((c) => ({
+			...c,
+			columnsPreset: [...c.columnsPreset, columns]
+		}));
+	};
 
 	const onCustomizeColumnClick = () => {
 		modalType = 'customize-column';
@@ -43,11 +65,11 @@
 		modalType = 'generate-article';
 	};
 
-	$: onAddNewOption = (v, { name, id }) => {
+	$: onAddNewOption = (v, { label, id }) => {
 		gptArticleGenerateStore.update((c) => {
 			c.dataByColumnLabel = {
 				...c.dataByColumnLabel,
-				[name]: [...(c.dataByColumnLabel[name] || []), { value: v.value, label: v.value }]
+				[label]: [...(c.dataByColumnLabel[label] || []), { value: v.value, label: v.value }]
 			};
 			return c;
 		});
@@ -59,7 +81,7 @@
 
 	$: {
 		gptArticleGenerateStore.update((c) => {
-			c.columns = columns.map((col) => ({ label: col.name, id: col.id }));
+			c.columns = columns;
 			return c;
 		});
 	}
@@ -107,18 +129,18 @@
 	<div
 		bind:this={tableContainerRef}
 		class="table_container"
-		style="grid-template-columns: repeat({columns.length}, 170px)"
+		style="grid-template-columns: repeat({activeColumns.length}, 170px)"
 	>
-		{#each columns as column, index (column.id)}
+		{#each activeColumns as column, index (column.id)}
 			<div
 				class="flex items-center justify-center border border-black p-2 {index > 0
 					? '-ml-[1px]'
 					: ''}"
 			>
-				{column.name}
+				{column.label}
 			</div>
 		{/each}
-		{#each columns as column, columnIndex (column.id)}
+		{#each activeColumns as column, columnIndex (column.id)}
 			<div class="border border-black -mt-[1px] p-2 {columnIndex > 0 ? '-ml-[1px]' : ''}">
 				<Input
 					multiple={true}
@@ -129,7 +151,7 @@
 					onChange={(v) => {
 						row = { ...(row || {}), [column.id]: v };
 					}}
-					options={dataByColumnLabel[column.name] || []}
+					options={dataByColumnLabel[column.label] || []}
 				/>
 				{#if row[column.id]}
 					{#each row[column.id] as selectedValues}
@@ -141,16 +163,29 @@
 	</div>
 </div>
 <Modal
-	containerClassName=" max-w-[80%]"
+	containerClassName="max-w-[80%] min-w-[500px]"
+	outClickToClose={false}
 	header={modalType === 'customize-column' ? 'Customize Columns' : 'Generate Articles'}
 	visible={!!modalType}
 	on:close={closeModal}
 >
 	<div class="p-4">
 		{#if modalType === 'customize-column'}
+			<div class="mb-3">
+				<Input
+					type={InputTypes.SELECT}
+					options={columnPresetOptions}
+					label="Select Column Preset"
+					onChange={(v) => {
+						columns = $gptArticleGenerateStore.columnsPreset[v];
+					}}
+				/>
+			</div>
 			<Form
 				onSubmit={(value) => {
-					columns = columns.concat({ name: value.newColumn, id: uuidv4() });
+					if (!value.newColumn) return;
+					const id = uuidv4();
+					columns = columns.concat({ label: value.newColumn, id, active: true });
 				}}
 			>
 				<div class="flex gap-1 items-center mb-3">
@@ -170,20 +205,42 @@
 							class="p-2 border border-input flex items-center gap-2"
 							animate:flip={{ duration: flipDurationMs }}
 						>
-							<span>{item.name}</span>
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
-							<div
-								class="p-1 ml-auto hover:opacity-70 cursor-pointer"
-								on:click={() => {
-									columns.splice(index, 1);
-									columns = columns;
-								}}
-							>
-								<Icon class="text-danger" name="delete" />
+							<span>{item.label}</span>
+							<div class="p-1 ml-auto hover:opacity-70 flex items-center cursor-pointer">
+								<!-- svelte-ignore a11y-click-events-have-key-events -->
+								<div
+									class="mr-2"
+									class:text-general-active={item.active}
+									class:text-danger={!item.active}
+									on:click={() => {
+										const newState = !item.active;
+										item.active = newState;
+										columns = columns;
+									}}
+								>
+									{item.active ? 'Active' : 'Inactive'}
+								</div>
+								<!-- svelte-ignore a11y-click-events-have-key-events -->
+								<Icon
+									on:click={() => {
+										columns.splice(index, 1);
+										columns = columns;
+									}}
+									class="text-danger"
+									name="delete"
+								/>
 							</div>
 						</div>
 					{/each}
 				</section>
+				<div class="flex items-center flex-col">
+					<Button class="mt-10" buttonType={ButtonTypes.PRIMARY} on:click={onClickSaveColumnPreset}
+						>Save Column Preset</Button
+					>
+					{#if savePresetDone}
+						<div class="text-general-active">Saved!</div>
+					{/if}
+				</div>
 			{/if}
 		{:else if modalType === 'generate-article'}
 			<ArticleGenerate {row} {columns} />
