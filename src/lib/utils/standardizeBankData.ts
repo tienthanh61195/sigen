@@ -4,22 +4,26 @@ import { read } from 'xlsx';
 import convertFinanceNumberToNumber from './convertFinanceNumberToNumber';
 import convertExcelDateCodeToString from './convertExcelDateCodeToString';
 import { DateTime } from 'luxon';
-type BankStringMap = Record<keyof typeof Banks, string>;
+type BankStringMap = Record<keyof typeof Banks, string | string[]>;
 const banksStringMap: BankStringMap = {
 	vpBank:
 		'Số dư tham chiếu: là số dư thực tế tại thời điểm phát sinh giao dịch, bao gồm cả các giao dịch phát sinh sau giờ khóa sổ giao dịch trong ngày của Ngân hàng.',
 	vietinBank: 'contact@vietinbank.vn',
 	mbBank:
 		'Chứng từ này được xuất tự động từ hệ thống ngân hàng điện tử BIZ MBBank của Ngân hàng TMCP Quân đội.',
-	vcBank: 'VIETCOMBANK - Chung niềm tin vững tương lai'
+	vcBank: 'VIETCOMBANK - Chung niềm tin vững tương lai',
+	custom: ['Người thanh toán', 'Nội dung', 'Ghi nợ', 'Ngày', 'STT']
 };
 const getBankType = (str: string | number) => {
 	if (typeof str !== 'string') return '';
 	let bankType: keyof typeof Banks | undefined;
 	for (const bank in banksStringMap) {
-		if (str.indexOf(banksStringMap[bank as keyof typeof Banks]) > -1) {
-			bankType = bank as keyof typeof Banks;
-			break;
+		const bankStringCheck = banksStringMap[bank as keyof typeof Banks]
+		if (isString(bankStringCheck)) {
+			if (str.indexOf(bankStringCheck) > -1) {
+				bankType = bank as keyof typeof Banks;
+				break;
+			}
 		}
 	}
 	return bankType;
@@ -28,7 +32,8 @@ const markedAsStartString: Record<keyof typeof Banks, string> = {
 	vpBank: 'stt',
 	vietinBank: 'stt',
 	mbBank: 'stt',
-	vcBank: 'ngày giao dịch'
+	vcBank: 'ngày giao dịch',
+	custom: 'stt'
 };
 
 const standardizeBankData = async (file: Blob | File) => {
@@ -42,6 +47,7 @@ const standardizeBankData = async (file: Blob | File) => {
 	let bankRecords: any[] = [];
 
 	// get bank table starting row number
+	let accumulateExcelValues = ''
 	for (const excelKey in sheetData) {
 		const excelValue = sheetData[excelKey]?.v;
 		if (
@@ -52,9 +58,15 @@ const standardizeBankData = async (file: Blob | File) => {
 		)
 			continue;
 		if (!bankType) {
-			bankType = getBankType(excelValue) || '';
+			bankType = getBankType(excelValue) || undefined;
 			if (bankType) break;
 		}
+		accumulateExcelValues = accumulateExcelValues + " " + excelValue
+	}
+	console.log(bankType, accumulateExcelValues)
+
+	if (!bankType && (banksStringMap.custom as string[]).every(str => accumulateExcelValues.indexOf(str) > -1)) {
+		bankType = 'custom'
 	}
 
 	for (const excelKey in sheetData) {

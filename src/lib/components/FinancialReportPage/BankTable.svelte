@@ -86,7 +86,7 @@
 	$: onExportClick = () => {
 		// table headers
 		const aggregateRecords = standardizedRecords.concat(...extraRecords);
-
+		// return;
 		const worksheetData = [
 			[],
 			[
@@ -139,7 +139,7 @@
 				acc.outflowsTotal += record.debit;
 				let traverseDataReference: any = {};
 				extraProperties.forEach((property, propertyIndex) => {
-					const propertyValue = record[property];
+					const propertyValue = record[property] || '';
 					// ------ handle if Inflows
 					if (isInflows) {
 						if (propertyIndex === 0) {
@@ -552,6 +552,17 @@
 									/>
 								</div>
 							{/if}
+						</td>
+					{/each}
+					{#each extraColumns as extraColumn, extraColumnsIndex (extraColumn)}
+						<td class="w-auto items-center">
+							<Input
+								type={InputTypes.TEXT}
+								onChange={(v) => {
+									extraRecords[recordIndex][extraColumn] = v;
+									extraRecords = extraRecords;
+								}}
+							/>
 						</td>
 					{/each}
 					{#each extraProperties as extraProperty, extraPropertiesIndex (extraProperty)}
