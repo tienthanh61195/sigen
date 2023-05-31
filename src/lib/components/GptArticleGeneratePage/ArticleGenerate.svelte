@@ -8,6 +8,7 @@
 	import Icon from '../Icon.svelte';
 	import wait from '$lib/utils/wait';
 	import downloadArrayAsCsv from '$lib/utils/downloadArrayAsCsv';
+	import generateExcelFile from '$lib/utils/generateExcelFile';
 
 	export let row: Record<string, any>;
 	export let columns: { id: string; name: string }[];
@@ -27,18 +28,19 @@
 
 	$: onExportResult = () => {
 		if (!isEmpty($gptArticleGenerateStore.gptAnswers)) {
-			const resultAsArrays = Object.entries($gptArticleGenerateStore.gptAnswers).reduce(
+			const worksheet = Object.entries($gptArticleGenerateStore.gptAnswers).reduce(
 				(acc, [prompt, response]) => {
 					if (prompts.some((pr) => prompt === `Write ${pr.join(' ')}`)) {
-						acc.push([`"${prompt.replace(/\"/g, '"""')}"`, `"${response.replace(/\"/g, '"""')}"`]);
+						acc.push([prompt, response]);
 					}
 					return acc;
 				},
 				[] as any[]
 			);
-			resultAsArrays.unshift(['Prompt', 'GPT Response']);
+			worksheet.unshift(['Prompt', 'GPT Response']);
+			// return;
 			// console.log(resultAsArrays.map((e) => e.join(',')).join('\n'));
-			downloadArrayAsCsv(resultAsArrays, `gpt-generated-${new Date().toISOString()}`);
+			generateExcelFile(worksheet, `gpt-generated-${new Date().toISOString()}`);
 		}
 	};
 	$: onAskGptClick = async () => {
@@ -73,12 +75,12 @@
 				}
 			}
 			const resultAsArrays = Object.entries(results).reduce((acc, [prompt, response]) => {
-				acc.push([`"${prompt.replace(/\"/g, '"""')}"`, `"${response.replace(/\"/g, '"""')}"`]);
+				acc.push([prompt, response]);
 				return acc;
 			}, [] as any[]);
 			resultAsArrays.unshift(['Prompt', 'GPT Response']);
 			// console.log(resultAsArrays.map((e) => e.join(',')).join('\n'));
-			downloadArrayAsCsv(resultAsArrays, `gpt-generated-${new Date().toISOString()}`);
+			generateExcelFile(resultAsArrays, `gpt-generated-${new Date().toISOString()}`);
 		} catch (err) {
 			console.log('error', err);
 			gptError = `Chờ xíu thử lại coi sao nha, lỗi gì rồi - ${err}`;
