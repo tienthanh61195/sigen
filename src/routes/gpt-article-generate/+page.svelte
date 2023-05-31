@@ -65,6 +65,10 @@
 		modalType = 'generate-article';
 	};
 
+	const onResetAllColumnsClick = () => {
+		gptArticleGenerateStore.update((c) => ({ ...c, columns: [], columnsPreset: [] }));
+	};
+
 	$: onAddNewOption = (v, { label, id }) => {
 		gptArticleGenerateStore.update((c) => {
 			c.dataByColumnLabel = {
@@ -116,6 +120,9 @@
 		</Button>
 		<Button buttonType={ButtonTypes.PRIMARY} on:click={onGenerateArticleClick}>
 			Generate Articles
+		</Button>
+		<Button buttonType={ButtonTypes.PRIMARY} on:click={onResetAllColumnsClick}>
+			Reset All Columns
 		</Button>
 		<Input
 			label="Gpt Key"
