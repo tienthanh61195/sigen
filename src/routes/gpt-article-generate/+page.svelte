@@ -198,7 +198,7 @@
 			>
 				<div class="flex gap-1 items-center mb-3">
 					<Input label="New column" name="newColumn" />
-					<Button type="submit" class="p-2"><Icon name="check" /></Button>
+					<Button type="submit" class="p-2"><Icon class="text-main-blue" name="check" /></Button>
 				</div>
 			</Form>
 			{#if columns.length}
