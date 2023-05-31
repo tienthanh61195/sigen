@@ -67,6 +67,7 @@
 
 	const onResetAllColumnsClick = () => {
 		gptArticleGenerateStore.update((c) => ({ ...c, columns: [], columnsPreset: [] }));
+		columns = [];
 	};
 
 	$: onAddNewOption = (v, { label, id }) => {
@@ -121,7 +122,7 @@
 		<Button buttonType={ButtonTypes.PRIMARY} on:click={onGenerateArticleClick}>
 			Generate Articles
 		</Button>
-		<Button buttonType={ButtonTypes.PRIMARY} on:click={onResetAllColumnsClick}>
+		<Button buttonType={ButtonTypes.DANGER} on:click={onResetAllColumnsClick}>
 			Reset All Columns
 		</Button>
 		<Input
