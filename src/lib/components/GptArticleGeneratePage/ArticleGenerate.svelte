@@ -50,16 +50,24 @@
 		const maxPerMin = 3;
 		try {
 			for (let i = 0; i <= prompts.length; i = i + maxPerMin) {
-				const startAskTime = Date.now();
 				const promptSet = prompts.slice(i, maxPerMin + i);
 				await Promise.all([
 					...promptSet.map(async (prompt: string[]) => {
 						const promptString = `Write ${prompt.join(' ')}`;
 						if ($gptArticleGenerateStore.gptAnswers[promptString]) return;
-						const response = await askGpt({
-							prompt: promptString,
-							token: $gptArticleGenerateStore.gptToken
-						});
+						let response;
+						while (!response) {
+							try {
+								const res = await askGpt({
+									prompt: promptString,
+									token: $gptArticleGenerateStore.gptToken
+								});
+								response = res;
+							} catch (err) {
+								await wait(10000);
+							}
+						}
+
 						results[promptString] = response;
 						gptArticleGenerateStore.update((c) => ({
 							...c,
@@ -68,11 +76,6 @@
 						return;
 					})
 				]);
-				const endAskTime = Date.now();
-				if (endAskTime - startAskTime > 70000) continue;
-				if (i + maxPerMin < prompts.length) {
-					await wait(70000 - (endAskTime - startAskTime));
-				}
 			}
 			const resultAsArrays = Object.entries(results).reduce((acc, [prompt, response]) => {
 				acc.push([prompt, response]);
