@@ -22,12 +22,14 @@ export const financeReportStore = persistStore<{ credit: any[]; debit: any[] }>(
 
 export const gptArticleGenerateStore = persistStore<{
 	dataByColumnLabel: Record<string, InputOption[]>;
-	columns: { id: string; label: string }[];
+	columns: { id: string; label: string; active: boolean }[];
 	gptAnswers: Record<string, string>;
 	gptToken: string;
+	columnsPreset: { id: string; label: string; active: boolean }[][];
 }>('gptArticle', {
 	dataByColumnLabel: {},
 	columns: [],
 	gptAnswers: {},
-	gptToken: ''
+	gptToken: '',
+	columnsPreset: []
 });

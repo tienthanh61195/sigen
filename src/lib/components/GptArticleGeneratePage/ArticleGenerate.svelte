@@ -11,7 +11,7 @@
 	import generateExcelFile from '$lib/utils/generateExcelFile';
 
 	export let row: Record<string, any>;
-	export let columns: { id: string; name: string }[];
+	export let columns: { id: string; label: string; active: boolean }[];
 	export let loading = false;
 	let gptError = '';
 	$: prompts =
