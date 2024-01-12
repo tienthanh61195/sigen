@@ -35,7 +35,8 @@
 		"tailwindcss": "^3.3.2",
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
-		"vite": "^4.3.0"
+		"vite": "^4.3.0",
+		"sass": "^1.66.1"
 	},
 	"type": "module",
 	"dependencies": {
@@ -55,6 +56,9 @@
 		"svelte-dnd-action": "^0.9.22",
 		"uuid": "^9.0.0",
 		"xlsx": "^0.18.5",
-		"xlsx-js-style": "^1.2.0"
+		"xlsx-js-style": "^1.2.0",
+		"jspdf": "^2.5.1",
+		"pdfjs-dist": "^3.10.111",
+		"utf8": "^3.0.0"
 	}
 }

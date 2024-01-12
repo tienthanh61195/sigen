@@ -8,7 +8,8 @@
 	const menuNavigations = [
 		{ label: 'Phân Loại Tài Chính', route: `${base}/financial-report` },
 		{ label: 'Xuất Giấy Tờ', route: `${base}/contract-generate` },
-		{ label: 'Tạo Bài ChatGPT', route: `${base}/gpt-article-generate` }
+		{ label: 'Tạo Bài ChatGPT', route: `${base}/gpt-article-generate` },
+		{ label: 'Kiểm tra PDF', route: `${base}/pdf-check` }
 	];
 	const onNavigationClick = (route: string) => {
 		goto(route);
