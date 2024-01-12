@@ -1,6 +1,5 @@
 <script lang="ts">
 	import pdfjsLib from 'pdfjs-dist';
-	import '../app.css';
 	import readPdfFile from '$lib/utils/readPdfFile';
 	import isEmpty from 'lodash/isEmpty';
 	import union from 'lodash/union';
